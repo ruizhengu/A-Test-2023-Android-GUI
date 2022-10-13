@@ -11,12 +11,6 @@ class Search:
     def __init__(self):
         self.g = Github(GITHUB_TOKEN)
 
-    # def search_repo(self, name: list):
-    #     name.append("in:name")
-    #     query = " ".join(name)
-    #     result = self.g.search_repositories(query)
-    #     print(result.totalCount)
-
     # get repos from excel
     @staticmethod
     def get_repos():
@@ -33,7 +27,6 @@ class Search:
                 query = f"repo:{repo[0]}"
                 result = self.g.search_repositories(query)
                 repo.append(result.totalCount)
-                # repo.append(1)
             except github.GithubException as e:
                 if e.data["message"] == "Validation Failed":
                     repo.append(0)
@@ -46,7 +39,29 @@ class Search:
         with pd.ExcelWriter(data_path, mode="a") as writer:
             exist_data.to_excel(writer, sheet_name=sheet_exist, index=False)
 
+    # searching code by keywords in repos
+    def search_in_repo(self, keywords: list, sheet: str):
+        target_repos = get_target_repos()
+        data = []
+        for repo in target_repos:
+            for attempt in range(10):
+                try:
+                    query = f"{' '.join(keywords)} repo:{repo}"
+                    result = self.g.search_code(query)
+                    data.append([repo, result.totalCount])
+                    # data.append([repo, 1])
+                except github.GithubException as e:
+                    print(e)
+                    time.sleep(60)
+                else:
+                    break
+            else:
+                continue
+        code_data = pd.DataFrame(data, columns=["repository", " ".join(keywords)])
+        with pd.ExcelWriter(data_path, mode="a", if_sheet_exists="replace") as writer:
+            code_data.to_excel(writer, sheet_name=sheet, index=False)
+
 
 if __name__ == '__main__':
     search = Search()
-    search.repos_exist()
+    search.search_in_repo(search_keywords["both"], sheet_both)
