@@ -55,6 +55,12 @@ class Crawler:
                 return True
         return False
 
+    def get_in_folder(self):
+        ele_files = self.driver.find_element(By.XPATH, "//*[contains(@class, 'Details-content')]")
+        folders = ele_files.find_elements(By.XPATH, "//*[contains(@aria-label, 'Directory')]")
+        print(len(folders))
+        # files = ele_files.find_elements(By.XPATH, "//*[contains(@class, 'js-navigation-open')]")
+
     def close(self):
         self.driver.close()
 
@@ -65,6 +71,7 @@ if __name__ == '__main__':
     crawler.get_in_app()
     crawler.get_in_src()
     crawler.get_in_android_test()
+    crawler.get_in_folder()
     print(crawler.if_android_test())
     time.sleep(5)
     crawler.close()
