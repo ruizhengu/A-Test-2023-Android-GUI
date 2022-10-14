@@ -1,5 +1,5 @@
 import time
-
+from collections import Counter
 from selenium import webdriver
 from selenium.webdriver.common.by import By
 
@@ -9,6 +9,10 @@ class Crawler:
         self.driver = webdriver.Chrome()
         self.driver.get(f"https://github.com/{repo}")
         self.driver.set_page_load_timeout(10)
+        self.espresso_used = False
+        self.uiautomator_used = False
+        self.espresso_apis = []
+        self.uiautomator_apis = []
 
     # get in the app folder
     def get_in_app(self):
@@ -83,7 +87,40 @@ class Crawler:
                 if file != ".\u200a." and "ExampleInstrumentedTest" not in file and file != "" and file.endswith(
                         (".java", ".kt")):
                     self.driver.find_element(By.XPATH, f"//*[text()='{file}']").click()
-                    self.check_test()
+                    time.sleep(2)
+                    self.get_code_with_keywords()
+
+    def get_code_with_keywords(self):
+        espresso_api = []
+        uiautomator_api = []
+        all_code = self.driver.find_elements(By.XPATH, "//*[contains(@class, 'blob-code-inner')]")
+        for code in all_code:
+            if "import" in code.text:
+                imports = code.text.split(" ")[-1]
+                api = imports.split(".")[-1]
+                if ";" in api:
+                    api = api[:-1]
+                if "espresso" in code.text:
+                    espresso_api.append(api)
+                if "uiautomator" in code.text:
+                    uiautomator_api.append(api)
+            else:
+                for api in espresso_api:
+                    if api in code.text:
+                        self.espresso_used = True
+                        self.espresso_apis.append(api)
+                for api in uiautomator_api:
+                    if api in code.text:
+                        self.uiautomator_used = True
+                        self.uiautomator_apis.append(api)
+        time.sleep(2)
+        self.back()
+
+    def get_result(self):
+        counter_espresso = Counter(self.espresso_apis)
+        counter_uiautomator = Counter(self.uiautomator_apis)
+        print(counter_espresso.items())
+        print(counter_uiautomator.items())
 
     # check the content of the test
     def check_test(self):
@@ -100,12 +137,29 @@ class Crawler:
 
 
 if __name__ == '__main__':
-    repo = "FoVlaX/test_architecture"
+    repo = "44dw/Temperature"
     crawler = Crawler(repo)
     crawler.get_in_app()
     crawler.get_in_src()
     crawler.get_in_android_test()
     if crawler.if_android_test():
         crawler.open_test()
+        crawler.get_result()
     time.sleep(5)
     crawler.close()
+
+    # driver = webdriver.Chrome()
+    # driver.get(
+    #     "https://github.com/FoVlaX/test_architecture/blob/master/app/src/androidTest/java/com/example/pagerlistapp/ExampleInstrumentedTest.kt")
+    # all_code = driver.find_elements(By.XPATH, "//*[contains(@class, 'blob-code-inner')]")
+    # espresso_api = []
+    # for code in all_code:
+    #     if "espresso" in code.text and "import" in code.text:
+    #         imports = code.text.split(" ")[-1]
+    #         apis = imports.split(".")[-1]
+    #         espresso_api.append(apis)
+    #     if "import" not in code.text:
+    #         for api in espresso_api:
+    #             if api in code.text:
+    #                 print(api)
+    # driver.close()
