@@ -1,0 +1,1 @@
+[{"repository": "44dw/Temperature", "espresso used": true, "uiautomator used": false, "espresso apis": {"IntentsTestRule": 2, "click": 2, "onView": 1, "withId": 1, "intended": 1, "hasComponent": 1}, "uiautomator apis": {}}]

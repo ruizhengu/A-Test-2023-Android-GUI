@@ -1,13 +1,18 @@
+import json
+import os
 import time
 from collections import Counter
 from selenium import webdriver
 from selenium.webdriver.common.by import By
 
+json_file = "api_result.json"
+
 
 class Crawler:
     def __init__(self, repo):
+        self.repo = repo
         self.driver = webdriver.Chrome()
-        self.driver.get(f"https://github.com/{repo}")
+        self.driver.get(f"https://github.com/{self.repo}")
         self.driver.set_page_load_timeout(10)
         self.espresso_used = False
         self.uiautomator_used = False
@@ -90,6 +95,7 @@ class Crawler:
                     time.sleep(2)
                     self.get_code_with_keywords()
 
+    # check if the code actually implemented the tools' apis
     def get_code_with_keywords(self):
         espresso_api = []
         uiautomator_api = []
@@ -117,16 +123,18 @@ class Crawler:
         self.back()
 
     def get_result(self):
-        counter_espresso = Counter(self.espresso_apis)
-        counter_uiautomator = Counter(self.uiautomator_apis)
-        print(counter_espresso.items())
-        print(counter_uiautomator.items())
-
-    # check the content of the test
-    def check_test(self):
-        # print("check test")
-        time.sleep(2)
-        self.back()
+        result = {
+            "repository": self.repo,
+            "espresso used": self.espresso_used,
+            "uiautomator used": self.uiautomator_used,
+            "espresso apis": Counter(self.espresso_apis),
+            "uiautomator apis": Counter(self.uiautomator_apis)
+        }
+        with open(json_file, "r") as file:
+            feeds = json.load(file)
+            feeds.append(result)
+        with open(json_file, "w") as file:
+            json.dump(feeds, file)
 
     def back(self):
         self.driver.back()
@@ -137,6 +145,8 @@ class Crawler:
 
 
 if __name__ == '__main__':
+    with open(json_file, "w") as f:
+        json.dump([], f)
     repo = "44dw/Temperature"
     crawler = Crawler(repo)
     crawler.get_in_app()
@@ -147,19 +157,3 @@ if __name__ == '__main__':
         crawler.get_result()
     time.sleep(5)
     crawler.close()
-
-    # driver = webdriver.Chrome()
-    # driver.get(
-    #     "https://github.com/FoVlaX/test_architecture/blob/master/app/src/androidTest/java/com/example/pagerlistapp/ExampleInstrumentedTest.kt")
-    # all_code = driver.find_elements(By.XPATH, "//*[contains(@class, 'blob-code-inner')]")
-    # espresso_api = []
-    # for code in all_code:
-    #     if "espresso" in code.text and "import" in code.text:
-    #         imports = code.text.split(" ")[-1]
-    #         apis = imports.split(".")[-1]
-    #         espresso_api.append(apis)
-    #     if "import" not in code.text:
-    #         for api in espresso_api:
-    #             if api in code.text:
-    #                 print(api)
-    # driver.close()
