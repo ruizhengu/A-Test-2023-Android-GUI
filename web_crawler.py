@@ -80,7 +80,7 @@ class Crawler:
             file_names = [file.text for file in
                           ele_files.find_elements(By.XPATH, "//*[contains(@class, 'js-navigation-open')]")]
             for file in file_names:
-                if file != ".\u200a." and file != "ExampleInstrumentedTest.java" and file != "" and file.endswith(
+                if file != ".\u200a." and "ExampleInstrumentedTest" not in file and file != "" and file.endswith(
                         (".java", ".kt")):
                     self.driver.find_element(By.XPATH, f"//*[text()='{file}']").click()
                     self.check_test()
@@ -100,7 +100,7 @@ class Crawler:
 
 
 if __name__ == '__main__':
-    repo = "75py/Aplin"
+    repo = "FoVlaX/test_architecture"
     crawler = Crawler(repo)
     crawler.get_in_app()
     crawler.get_in_src()
