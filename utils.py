@@ -57,7 +57,7 @@ def get_test_count(tools):
         repo = repos.iloc[i]
         if repo["espresso, uiautomator"] > 1:
             test_repos.append(repo["repository"])
-    print(len(test_repos))
+    # print(len(test_repos))
 
 
 get_test_count("both")

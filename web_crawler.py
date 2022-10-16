@@ -4,6 +4,7 @@ import time
 from collections import Counter
 from selenium import webdriver
 from selenium.webdriver.common.by import By
+from utils import *
 
 json_file = "api_result.json"
 
@@ -14,6 +15,7 @@ class Crawler:
         self.driver = webdriver.Chrome()
         self.driver.get(f"https://github.com/{self.repo}")
         self.driver.set_page_load_timeout(10)
+        self.require_manual_check = False
         self.espresso_used = False
         self.uiautomator_used = False
         self.espresso_apis = []
@@ -42,7 +44,7 @@ class Crawler:
         if title in dicts:
             dicts[title].click()
         else:
-            "element not found"
+            self.require_manual_check = True
         time.sleep(2)
 
     # click element contains title
@@ -76,24 +78,24 @@ class Crawler:
         folders = self.get_folders()
         if len(folders) != 0:
             for folder in folders:
-                if len(self.driver.find_elements(By.XPATH, f"//*[text()='{folder}']")) != 0:
-                    self.driver.find_element(By.XPATH, f"//*[text()='{folder}']").click()
+                if "/" not in folder:
+                    self.driver.find_element(By.XPATH, f"//*[text()='{folder}' and not(span)]").click()
                 else:
                     self.driver.find_element(By.XPATH,
                                              f"//*[text()='{folder.split('/')[-1]}']/*[text()='{'/'.join(folder.split('/')[:-1]) + '/'}']").click()
                 time.sleep(2)
                 self.open_test()
                 self.back()
-        else:
-            ele_files = self.driver.find_element(By.XPATH, "//*[contains(@class, 'Details-content')]")
-            file_names = [file.text for file in
-                          ele_files.find_elements(By.XPATH, "//*[contains(@class, 'js-navigation-open')]")]
-            for file in file_names:
-                if file != ".\u200a." and "ExampleInstrumentedTest" not in file and file != "" and file.endswith(
-                        (".java", ".kt")):
-                    self.driver.find_element(By.XPATH, f"//*[text()='{file}']").click()
-                    time.sleep(2)
-                    self.get_code_with_keywords()
+        # else:
+        ele_files = self.driver.find_element(By.XPATH, "//*[contains(@class, 'Details-content')]")
+        file_names = [file.text for file in
+                      ele_files.find_elements(By.XPATH, "//*[contains(@class, 'js-navigation-open')]")]
+        for file in file_names:
+            if file != ".\u200a." and "ExampleInstrumentedTest" not in file and file != "" and file.endswith(
+                    (".java", ".kt")):
+                self.driver.find_element(By.XPATH, f"//*[text()='{file}']").click()
+                time.sleep(2)
+                self.get_code_with_keywords()
 
     # check if the code actually implemented the tools' apis
     def get_code_with_keywords(self):
@@ -125,6 +127,7 @@ class Crawler:
     def get_result(self):
         result = {
             "repository": self.repo,
+            "require manual check": self.require_manual_check,
             "espresso used": self.espresso_used,
             "uiautomator used": self.uiautomator_used,
             "espresso apis": Counter(self.espresso_apis),
@@ -145,15 +148,30 @@ class Crawler:
 
 
 if __name__ == '__main__':
+    repos = get_target_repos()
     with open(json_file, "w") as f:
         json.dump([], f)
-    repo = "44dw/Temperature"
-    crawler = Crawler(repo)
-    crawler.get_in_app()
-    crawler.get_in_src()
-    crawler.get_in_android_test()
-    if crawler.if_android_test():
-        crawler.open_test()
-        crawler.get_result()
-    time.sleep(5)
-    crawler.close()
+
+    for repo in repos:
+        print(repo)
+        crawler = Crawler(repo)
+        crawler.get_in_app()
+        crawler.get_in_src()
+        if not crawler.require_manual_check:
+            crawler.get_in_android_test()
+            if crawler.if_android_test():
+                crawler.open_test()
+                crawler.get_result()
+        time.sleep(2)
+        crawler.close()
+
+    # repo = "DroidsOnRoids/Toast-App"
+    # crawler = Crawler(repo)
+    # crawler.get_in_app()
+    # crawler.get_in_src()
+    # crawler.get_in_android_test()
+    # if crawler.if_android_test():
+    #     crawler.open_test()
+    #     crawler.get_result()
+    # time.sleep(5)
+    # crawler.close()
