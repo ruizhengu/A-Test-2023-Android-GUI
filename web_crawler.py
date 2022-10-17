@@ -149,12 +149,15 @@ class Crawler:
 
 if __name__ == '__main__':
     repos = get_target_repos()
-    with open(json_file, "w") as f:
-        json.dump([], f)
 
-    for repo in repos:
-        print(repo)
-        crawler = Crawler(repo)
+    for i in range(225, len(repos)):
+        print(repos[i])
+        # with open(json_file, "w") as f:
+        #     json.dump([], f)
+        #
+        # for repo in repos:
+        #     print(repo)
+        crawler = Crawler(repos[i])
         crawler.get_in_app()
         crawler.get_in_src()
         if not crawler.require_manual_check:
