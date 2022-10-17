@@ -78,8 +78,10 @@ class Crawler:
         folders = self.get_folders()
         if len(folders) != 0:
             for folder in folders:
+                # ele_files = self.driver.find_element(By.XPATH, "//*[contains(@class, 'Details-content')]")
                 if "/" not in folder:
-                    self.driver.find_element(By.XPATH, f"//*[text()='{folder}' and not(span)]").click()
+                    self.driver.find_element(By.XPATH,
+                                             f"//*[text()='{folder}' and not(span) and contains(@class, 'js-navigation-open')]").click()
                 else:
                     self.driver.find_element(By.XPATH,
                                              f"//*[text()='{folder.split('/')[-1]}']/*[text()='{'/'.join(folder.split('/')[:-1]) + '/'}']").click()
@@ -149,14 +151,15 @@ class Crawler:
 
 if __name__ == '__main__':
     repos = get_target_repos()
+    # print(repos[446])
+    # print(len(repos))
 
-    for i in range(225, len(repos)):
+    # with open(json_file, "w") as f:
+    #     json.dump([], f)
+
+    for i in range(446, len(repos)):
         print(repos[i])
-        # with open(json_file, "w") as f:
-        #     json.dump([], f)
-        #
-        # for repo in repos:
-        #     print(repo)
+
         crawler = Crawler(repos[i])
         crawler.get_in_app()
         crawler.get_in_src()
@@ -168,7 +171,7 @@ if __name__ == '__main__':
         time.sleep(2)
         crawler.close()
 
-    # repo = "DroidsOnRoids/Toast-App"
+    # repo = "jbmlaird/DiscogsBrowser"
     # crawler = Crawler(repo)
     # crawler.get_in_app()
     # crawler.get_in_src()
