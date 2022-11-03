@@ -15,6 +15,7 @@ if __name__ == '__main__':
         if repo["uiautomator used"]:
             repo_has_uiautomator += 1
         if repo["uiautomator used"] and repo["espresso used"]:
+            print(repo["repository"])
             repo_has_both += 1
     print("repo no manual", repo_no_manual)
     print("repo has espresso", repo_has_espresso)
