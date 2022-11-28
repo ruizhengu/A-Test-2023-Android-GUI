@@ -1,4 +1,4 @@
-# Android Automatd UI Testing - Demonstration
+# Android Automated UI Testing - Demonstration
 
 In this document, the implementation process of the test case *addItemAndDelete* will be detailed, including the reasons for choosing a testing framework to perform the step or not.
 
@@ -26,7 +26,7 @@ You can locate the *"Add Item"* button and perform the click action on it by bot
 
 #### Espresso
 
-The Android ID of this view can be found in resource file *res/layout/page_home.xml*.
+The Android ID of this view can be found in the resource file *res/layout/page_home.xml*.
 
 ```java
 onView(withId(R.id.button_add_item)).perform(click());
@@ -43,7 +43,7 @@ UiObject2 add_item = device.findObject(By.res("m.co.rh.id.a_personal_stuff:id/bu
 add_item.click();
 ```
 
-**Please note:** it is possible that it take some time when you launch an application. To avoid flakiness, you could add a waiting step by UIAutomator before all of you actions.
+**Please note:** it is possible that it takes some time when you launch an application. To avoid flakiness, you could add a waiting step by UIAutomator before all of your actions.
 
 ```java
 device.wait(Until.findObject(By.res("m.co.rh.id.a_personal_stuff:id/button_add_item")), 5000);
@@ -55,7 +55,7 @@ You can locate the *"Name"* field and enter text in it by both Espresso and UIAu
 
 #### Espresso
 
-The Android ID of this view can be found in resource file *res/layout/page_item_detail.xml*.
+The Android ID of this view can be found in the resource file *res/layout/page_item_detail.xml*.
 
 ```java
 onView(withId(R.id.input_text_name)).perform(typeText("Cookie"));
@@ -81,7 +81,7 @@ You can locate the *"+1"* button and click it by both Espresso and UIAutomator.
 
 #### Espresso
 
-The Android ID of this view can be found in resource file *res/layout/page_item_detail.xml*.
+The Android ID of this view can be found in the resource file *res/layout/page_item_detail.xml*.
 
 ```java
 onView(withId(R.id.button_plus_1)).perform(click());
@@ -101,7 +101,7 @@ You can locate the "Price" field and enter text in it by both Espresso and UIAut
 
 #### Espresso
 
-The Android ID of this view can be found in resource file *res/layout/page_item_detail.xml*.
+The Android ID of this view can be found in the resource file *res/layout/page_item_detail.xml*.
 
 ```java
 onView(withId(R.id.input_text_price)).perform(typeText("10"));
@@ -121,7 +121,7 @@ The "Expired date time" field can be located and clicked by both Espresso and UI
 
 #### Espresso
 
-The Android ID of this view can be found in resource file *res/layout/page_item_detail.xml*.
+The Android ID of this view can be found in the resource file *res/layout/page_item_detail.xml*.
 
 ```java
 onView(withId(R.id.input_text_expired_date_time)).perform(click());
@@ -151,4 +151,4 @@ device.findObject(By.res("m.co.rh.id.a_personal_stuff:id/input_text_expired_date
 
 ### 12. Click the *"delete"* button at the bottom of the item's view then click *"OK"*.
 
-### 13. Use *"press back"* action to go back to home page.
+### 13. Use a *"press back"* action to go back to the home page.
