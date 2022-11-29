@@ -198,14 +198,136 @@ Espresso has the default swipe APIs *swipeLeft()*, *swipeRight()*, *swipeDown()*
 
 You can specify the start and end points' coordinates and the speed of a swipe action by UIAutomator's *device.swipe()* API. 
 
+The descriptions of Espresso swipe APIs show *"The swipe doesn't start at the very edge of the view, but has a bit of offset."*. In order to open the menu on the home page, the swipe needs to start at the edge of the view. UIAutomator is recommended for this swipe action.
+
+The size of the device is 1080x2400.
+
+#### UIAutomator
+
+```java
+device.swipe(10, 1200, 1000, 1200, 5);
+```
+
 ### 8. Click *"Items"* on the menu.
+
+The *"Items"* option cab be located and clicked by both Espresso and UIAutomator.
+
+#### Espresso
+
+The Android ID of this view can be found in the resource file *res/layout/page_home.xml*.
+
+```java
+onView(withId(R.id.menu_items)).perform(click());
+```
+
+#### UIAutomator
+
+```java
+device.findObject(By.res("m.co.rh.id.a_personal_stuff:id/menu_items")).click();
+```
 
 ### 9. Assert the name of the item as "Cookie".
 
+The name field and its attributes can be accessed and checked by both Espresso and UIAutomator.
+
+#### Espresso
+
+```java
+onView(withId(R.id.text_name)).check(matches(withText("Cookie")));
+```
+
+#### UIAutomator
+
+```java
+assertEquals("Cookie", device.findObject(By.res("m.co.rh.id.a_personal_stuff:id/text_name")).getText());
+```
+
 ### 10.  Assert the Amount of the item as "1".
+
+The amount field and its attributes can be accessed and checked by both Espresso and UIAutomator.
+
+#### Espresso
+
+```java
+onView(withId(R.id.text_amount)).check(matches(withText("Amount: 1")));
+```
+
+#### UIAutomator
+
+```java
+assertEquals("Amount: 1", device.findObject(By.res("m.co.rh.id.a_personal_stuff:id/text_amount")).getText());
+```
 
 ### 11. Assert the Price of the item as "10".
 
+The price field and its attributes can be accessed and checked by both Espresso and UIAutomator.
+
+#### Espresso
+
+```java
+onView(withId(R.id.text_price)).check(matches(withText("Price: 10")));
+```
+
+#### UIAutomator
+
+```java
+assertEquals("Price: 10", device.findObject(By.res("m.co.rh.id.a_personal_stuff:id/text_price")).getText());
+```
+
 ### 12. Click the *"delete"* button at the bottom of the item's view then click *"OK"*.
 
+#### 12.1 Click the *"delete"* button
+
+The *"delete"* button can be located and clicked by both Espresso and UIAutomator.
+
+##### Espresso
+
+The Android ID of this view can be found in the resource file *res/layout/item_item.xml*.
+
+```java
+onView(withId(R.id.button_delete)).perform(click());
+```
+
+##### UIAutomator
+
+```java
+device.wait(Until.findObject(By.res("m.co.rh.id.a_personal_stuff:id/button_delete")), 5000);
+device.findObject(By.res("m.co.rh.id.a_personal_stuff:id/button_delete")).click();
+```
+
+#### 12.2 Click *"OK"* button
+
+The *"OK"* button can be located and clicked by both Espresso and UIAutomator.
+
+##### Espresso
+
+The Android ID of this view can be found in the resource file *res/layout/page_item_select.xml*.
+
+```java
+onView(withId(R.id.button_ok)).perform(click());
+```
+
+##### UIAutomator
+
+```java
+device.wait(Until.findObject(By.res("m.co.rh.id.a_personal_stuff:id/button_ok")), 5000);
+device.findObject(By.res("m.co.rh.id.a_personal_stuff:id/button_ok")).click();
+```
+
 ### 13. Use a *"press back"* action to go back to the home page.
+
+Both Espresso and UIAutomator have APIs can perform the *"press back"* action.
+
+#### Espresso
+
+```java
+pressBack();
+```
+
+#### UIAutomator
+
+```java
+device.wait(Until.gone(By.res("m.co.rh.id.a_personal_stuff:id/button_ok")), 5000);
+device.pressBack();
+```
+
