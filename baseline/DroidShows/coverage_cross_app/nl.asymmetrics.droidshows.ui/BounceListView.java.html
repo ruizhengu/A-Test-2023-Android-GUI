@@ -1,0 +1,81 @@
+<?xml version="1.0" encoding="UTF-8"?><!DOCTYPE html PUBLIC "-//W3C//DTD XHTML 1.0 Strict//EN" "http://www.w3.org/TR/xhtml1/DTD/xhtml1-strict.dtd"><html xmlns="http://www.w3.org/1999/xhtml" lang="en"><head><meta http-equiv="Content-Type" content="text/html;charset=UTF-8"/><link rel="stylesheet" href="../jacoco-resources/report.css" type="text/css"/><link rel="shortcut icon" href="../jacoco-resources/report.gif" type="image/gif"/><title>BounceListView.java</title><link rel="stylesheet" href="../jacoco-resources/prettify.css" type="text/css"/><script type="text/javascript" src="../jacoco-resources/prettify.js"></script></head><body onload="window['PR_TAB_WIDTH']=0;prettyPrint()"><div class="breadcrumb" id="breadcrumb"><span class="info"><a href="../jacoco-sessions.html" class="el_session">Sessions</a></span><a href="../index.html" class="el_report">debug</a> &gt; <a href="index.source.html" class="el_package">nl.asymmetrics.droidshows.ui</a> &gt; <span class="el_source">BounceListView.java</span></div><h1>BounceListView.java</h1><pre class="source lang-java linenums">package nl.asymmetrics.droidshows.ui;
+
+import nl.asymmetrics.droidshows.DroidShows;
+import android.content.Context;
+import android.util.AttributeSet;
+import android.view.MotionEvent;
+import android.widget.ListView;
+
+public class BounceListView extends ListView {
+	private static final int MAX_OVERSCROLL_DISTANCE = 70;
+	private static final int MIN_OVERSCROLL_DISTANCE = 60;
+	private int maxOverScrollDistance;
+	private int minOverScrollDistance;
+	private Context context;
+	private float startY;
+<span class="fc" id="L16">	private boolean allowOverScroll = false;</span>
+<span class="fc" id="L17">	private boolean abortUpdate = true;</span>
+<span class="fc" id="L18">	public boolean updating = false;</span>
+<span class="fc" id="L19">	public boolean gettingNextLogged = false;</span>
+
+	public BounceListView(Context context, AttributeSet attrs) {
+<span class="fc" id="L22">		super(context, attrs);</span>
+<span class="fc" id="L23">		this.context = context;</span>
+<span class="fc" id="L24">		final float density = context.getResources().getDisplayMetrics().density;</span>
+<span class="fc" id="L25">		maxOverScrollDistance = (int) density * MAX_OVERSCROLL_DISTANCE;</span>
+<span class="fc" id="L26">		minOverScrollDistance = (int) density * MIN_OVERSCROLL_DISTANCE;</span>
+<span class="fc" id="L27">	}</span>
+
+	@Override
+	public boolean onTouchEvent(MotionEvent event) {
+<span class="pc bpc" id="L31" title="2 of 4 branches missed.">		switch(event.getAction()) {</span>
+			case MotionEvent.ACTION_DOWN:
+<span class="fc" id="L33">				abortUpdate = true;</span>
+<span class="fc" id="L34">				startY = event.getY();</span>
+<span class="fc" id="L35">				break;</span>
+			case MotionEvent.ACTION_MOVE:
+<span class="nc bnc" id="L37" title="All 2 branches missed.">				if (DroidShows.logMode)</span>
+<span class="nc bnc" id="L38" title="All 4 branches missed.">					allowOverScroll = event.getY() &lt; startY &amp;&amp; getAdapter().getCount() - 1 == getLastVisiblePosition();</span>
+				else
+<span class="nc bnc" id="L40" title="All 8 branches missed.">					allowOverScroll = event.getY() &gt; startY &amp;&amp; getChildCount() &gt; 0 &amp;&amp; getChildAt(0).getTop() == 0 &amp;&amp; getFirstVisiblePosition() == 0;</span>
+<span class="nc" id="L41">				break;</span>
+			case MotionEvent.ACTION_UP:
+<span class="fc" id="L43">				allowOverScroll = false;</span>
+<span class="fc" id="L44">				abortUpdate = true;</span>
+		}
+<span class="fc" id="L46">		return super.onTouchEvent(event);</span>
+	}
+	
+	@Override
+	protected void onOverScrolled(int scrollX, int scrollY, boolean clampedX, boolean clampedY) {
+<span class="nc bnc" id="L51" title="All 6 branches missed.">		if (DroidShows.logMode &amp;&amp; !gettingNextLogged &amp;&amp; allowOverScroll) {</span>
+<span class="nc" id="L52">			gettingNextLogged = true;</span>
+<span class="nc" id="L53">			((DroidShows)context).getNextLogged();</span>
+		} else {
+<span class="nc bnc" id="L55" title="All 4 branches missed.">			if (!updating &amp;&amp; -scrollY &gt; minOverScrollDistance) {</span>
+<span class="nc" id="L56">				abortUpdate = false;</span>
+<span class="nc" id="L57">				updating = true;</span>
+<span class="nc" id="L58">				this.postDelayed(startUpdate, 500);</span>
+			}
+		}
+<span class="nc" id="L61">		super.onOverScrolled(scrollX, scrollY, clampedX, clampedY);</span>
+<span class="nc" id="L62">	}</span>
+
+	@Override
+	protected boolean overScrollBy(int deltaX, int deltaY, int scrollX, int scrollY, int scrollRangeX, int scrollRangeY, int maxOverScrollX, int maxOverScrollY, boolean isTouchEvent) {
+<span class="nc bnc" id="L66" title="All 2 branches missed.">		if (-scrollY &lt;= minOverScrollDistance)</span>
+<span class="nc" id="L67">			abortUpdate = true;</span>
+<span class="nc bnc" id="L68" title="All 2 branches missed.">		if (allowOverScroll)</span>
+<span class="nc" id="L69">			maxOverScrollY = maxOverScrollDistance;</span>
+<span class="nc" id="L70">		return super.overScrollBy(deltaX, deltaY, scrollX, scrollY, scrollRangeX, scrollRangeY, maxOverScrollX, maxOverScrollY, isTouchEvent);</span>
+	}
+
+<span class="fc" id="L73">	private Runnable startUpdate = new Runnable() {</span>
+		public void run() {
+<span class="nc bnc" id="L75" title="All 2 branches missed.">			if (!abortUpdate)</span>
+<span class="nc" id="L76">				((DroidShows)context).updateAllSeries(DroidShows.showArchive);</span>
+<span class="nc" id="L77">			updating = false;</span>
+<span class="nc" id="L78">		}</span>
+	};
+}
+</pre><div class="footer"><span class="right">Created with <a href="http://www.jacoco.org/jacoco">JaCoCo</a> 0.8.2.201808211720</span>Generated by the Android Gradle plugin 7.3.0</div></body></html>

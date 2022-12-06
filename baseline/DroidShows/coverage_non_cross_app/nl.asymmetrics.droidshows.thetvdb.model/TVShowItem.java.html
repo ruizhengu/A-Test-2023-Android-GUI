@@ -1,0 +1,174 @@
+<?xml version="1.0" encoding="UTF-8"?><!DOCTYPE html PUBLIC "-//W3C//DTD XHTML 1.0 Strict//EN" "http://www.w3.org/TR/xhtml1/DTD/xhtml1-strict.dtd"><html xmlns="http://www.w3.org/1999/xhtml" lang="en"><head><meta http-equiv="Content-Type" content="text/html;charset=UTF-8"/><link rel="stylesheet" href="../jacoco-resources/report.css" type="text/css"/><link rel="shortcut icon" href="../jacoco-resources/report.gif" type="image/gif"/><title>TVShowItem.java</title><link rel="stylesheet" href="../jacoco-resources/prettify.css" type="text/css"/><script type="text/javascript" src="../jacoco-resources/prettify.js"></script></head><body onload="window['PR_TAB_WIDTH']=0;prettyPrint()"><div class="breadcrumb" id="breadcrumb"><span class="info"><a href="../jacoco-sessions.html" class="el_session">Sessions</a></span><a href="../index.html" class="el_report">debug</a> &gt; <a href="index.source.html" class="el_package">nl.asymmetrics.droidshows.thetvdb.model</a> &gt; <span class="el_source">TVShowItem.java</span></div><h1>TVShowItem.java</h1><pre class="source lang-java linenums">package nl.asymmetrics.droidshows.thetvdb.model;
+
+import java.util.Date;
+
+import android.graphics.drawable.Drawable;
+
+public class TVShowItem {
+        private String serieid;
+        private String language;
+        private String icon;
+        private Drawable dicon;
+        private String name;
+        private int snumber;
+        private String nextEpisode;
+        private Date nextAir;
+        private boolean passiveStatus;
+        private int unwatchedAired;
+        private int unwatched;
+        private String showStatus;
+        private String extResources;
+        private String episodeId;
+        private String episodeName;
+        private String episodeSeen;
+<span class="fc" id="L24">        private boolean dvdOrder = false;</span>
+
+        public TVShowItem(String serieid, String language, String icon, Drawable dicon, String
+                          name, int snumber, String nextEpisode, Date nextAir,
+                          int unwatchedAired, int unwatched, boolean passiveStatus,
+<span class="fc" id="L29">                          String showStatus, String extResources, boolean dvdOrder) {</span>
+<span class="fc" id="L30">                this.serieid = serieid;</span>
+<span class="fc" id="L31">                this.language = language;</span>
+<span class="fc" id="L32">                this.icon = icon;</span>
+<span class="fc" id="L33">                this.dicon = dicon;</span>
+<span class="fc" id="L34">                this.name = name;</span>
+<span class="fc" id="L35">                this.snumber = snumber;</span>
+<span class="fc" id="L36">                this.nextEpisode = nextEpisode;</span>
+<span class="fc" id="L37">                this.nextAir = nextAir;</span>
+<span class="fc" id="L38">                this.unwatchedAired = unwatchedAired;</span>
+<span class="fc" id="L39">                this.unwatched = unwatched;</span>
+<span class="fc" id="L40">                this.passiveStatus = passiveStatus;</span>
+<span class="fc" id="L41">                this.showStatus = showStatus;</span>
+<span class="fc" id="L42">                this.extResources = extResources;</span>
+<span class="fc" id="L43">                this.dvdOrder = dvdOrder;</span>
+<span class="fc" id="L44">        }</span>
+
+        public String getSerieId() {
+<span class="fc" id="L47">                return this.serieid;</span>
+        }
+
+        public String getLanguage() {
+<span class="fc" id="L51">            return this.language;</span>
+        }
+
+        public String getIcon() {
+<span class="fc" id="L55">                return this.icon;</span>
+        }
+
+	        public void setIcon(String icon) {
+<span class="nc" id="L59">	                this.icon = icon;</span>
+<span class="nc" id="L60">	        }</span>
+
+        public String getName() {
+<span class="fc" id="L63">                return this.name;</span>
+        }
+
+	        public void setName(String name) {
+<span class="nc" id="L67">	                this.name = name;</span>
+<span class="nc" id="L68">	        }</span>
+
+        public int getSNumber() {
+<span class="fc" id="L71">                return this.snumber;</span>
+        }
+
+	        public void setSNumber(int snumber) {
+<span class="nc" id="L75">	                this.snumber = snumber;</span>
+<span class="nc" id="L76">	        }</span>
+
+        public String getNextEpisode() {
+<span class="fc" id="L79">                return this.nextEpisode;</span>
+        }
+
+	        public void setNextEpisode(String nextEpisode) {
+<span class="nc" id="L83">	                this.nextEpisode = nextEpisode;</span>
+<span class="nc" id="L84">	        }</span>
+
+        public Date getNextAir() {
+<span class="fc" id="L87">          return this.nextAir;</span>
+        }
+
+			  public void setNextAir(Date nextAir) {
+<span class="nc" id="L91">			          this.nextAir = nextAir;</span>
+<span class="nc" id="L92">			  }</span>
+  
+        public int getUnwatched() {
+<span class="fc" id="L95">                return this.unwatched;</span>
+        }
+
+	        public void setUnwatched(int unwatched) {
+<span class="nc" id="L99">	                this.unwatched = unwatched;</span>
+<span class="nc" id="L100">	        }</span>
+
+        public int getUnwatchedAired() {
+<span class="fc" id="L103">          return this.unwatchedAired;</span>
+        }
+
+			  public void setUnwatchedAired(int unwatchedAired) {
+<span class="nc" id="L107">			          this.unwatchedAired = unwatchedAired;</span>
+<span class="nc" id="L108">			  }</span>
+
+        public boolean getPassiveStatus() {
+<span class="fc" id="L111">                return this.passiveStatus;</span>
+        }
+
+	        public void setPassiveStatus(boolean passiveStatus) {
+<span class="nc" id="L115">	                this.passiveStatus = passiveStatus;</span>
+<span class="nc" id="L116">	        }</span>
+
+        public Drawable getDIcon() {
+<span class="fc" id="L119">                return this.dicon;</span>
+        }
+
+	        public void setDIcon(Drawable dicon) {
+<span class="fc" id="L123">	                this.dicon = dicon;</span>
+<span class="fc" id="L124">	        }</span>
+        
+        public String getShowStatus() {
+<span class="fc" id="L127">                return this.showStatus;</span>
+        }
+
+	        public void setShowStatus(String showStatus) {
+<span class="nc" id="L131">	                this.showStatus = showStatus;</span>
+<span class="nc" id="L132">	        }</span>
+        
+        public String getExtResources() {
+<span class="nc" id="L135">            return this.extResources;</span>
+	    }
+	
+		    public void setExtResources(String extResources) {
+<span class="nc" id="L139">		            this.extResources = extResources;</span>
+<span class="nc" id="L140">		    }</span>
+
+        public String getEpisodeId() {
+<span class="nc" id="L143">            return this.episodeId;</span>
+	    }
+	
+		    public void setEpisodeId(String episodeId) {
+<span class="nc" id="L147">		            this.episodeId = episodeId;</span>
+<span class="nc" id="L148">		    }</span>
+
+        public String getEpisodeName() {
+<span class="nc" id="L151">            return this.episodeName;</span>
+	    }
+		
+		    public void setEpisodeName(String episodeName) {
+<span class="nc" id="L155">		            this.episodeName = episodeName;</span>
+<span class="nc" id="L156">		    }</span>
+
+        public String getEpisodeSeen() {
+<span class="nc" id="L159">            return this.episodeSeen;</span>
+	    }
+
+        	public void setEpisodeSeen(String episodeSeen) {
+<span class="nc" id="L163">	            this.episodeSeen = episodeSeen;</span>
+<span class="nc" id="L164">		    }</span>
+	
+        public boolean getDvdOrder() {
+<span class="fc" id="L167">            return this.dvdOrder;</span>
+	    }
+	
+		    public void setDvdOrder(boolean dvdOrder) {
+<span class="nc" id="L171">	            this.dvdOrder = dvdOrder;</span>
+<span class="nc" id="L172">		    }</span>
+}
+</pre><div class="footer"><span class="right">Created with <a href="http://www.jacoco.org/jacoco">JaCoCo</a> 0.8.2.201808211720</span>Generated by the Android Gradle plugin 7.3.0</div></body></html>

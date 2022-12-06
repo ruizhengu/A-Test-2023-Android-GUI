@@ -1,0 +1,289 @@
+<?xml version="1.0" encoding="UTF-8"?><!DOCTYPE html PUBLIC "-//W3C//DTD XHTML 1.0 Strict//EN" "http://www.w3.org/TR/xhtml1/DTD/xhtml1-strict.dtd"><html xmlns="http://www.w3.org/1999/xhtml" lang="en"><head><meta http-equiv="Content-Type" content="text/html;charset=UTF-8"/><link rel="stylesheet" href="../jacoco-resources/report.css" type="text/css"/><link rel="shortcut icon" href="../jacoco-resources/report.gif" type="image/gif"/><title>SerieSeasons.java</title><link rel="stylesheet" href="../jacoco-resources/prettify.css" type="text/css"/><script type="text/javascript" src="../jacoco-resources/prettify.js"></script></head><body onload="window['PR_TAB_WIDTH']=0;prettyPrint()"><div class="breadcrumb" id="breadcrumb"><span class="info"><a href="../jacoco-sessions.html" class="el_session">Sessions</a></span><a href="../index.html" class="el_report">debug</a> &gt; <a href="index.source.html" class="el_package">nl.asymmetrics.droidshows.ui</a> &gt; <span class="el_source">SerieSeasons.java</span></div><h1>SerieSeasons.java</h1><pre class="source lang-java linenums">package nl.asymmetrics.droidshows.ui;
+
+import java.util.ArrayList;
+import java.util.Calendar;
+import java.util.List;
+
+import nl.asymmetrics.droidshows.R;
+import nl.asymmetrics.droidshows.thetvdb.model.Season;
+import nl.asymmetrics.droidshows.utils.SQLiteStore;
+import nl.asymmetrics.droidshows.utils.SwipeDetect;
+import android.annotation.SuppressLint;
+import android.app.ListActivity;
+import android.content.Context;
+import android.content.Intent;
+import android.database.Cursor;
+import android.os.AsyncTask;
+import android.os.Build;
+import android.os.Bundle;
+import android.util.Log;
+import android.view.ContextMenu;
+import android.view.LayoutInflater;
+import android.view.Menu;
+import android.view.MenuItem;
+import android.view.View;
+import android.view.ViewGroup;
+import android.view.ContextMenu.ContextMenuInfo;
+import android.view.ViewTreeObserver.OnGlobalLayoutListener;
+import android.widget.ArrayAdapter;
+import android.widget.ImageView;
+import android.widget.ListView;
+import android.widget.TextView;
+import android.widget.AdapterView.AdapterContextMenuInfo;
+
+<span class="fc" id="L34">public class SerieSeasons extends ListActivity</span>
+{
+	private String serieId;
+	private static boolean dvdOrder;
+<span class="fc" id="L38">	private List&lt;Integer&gt; seasonNumbers = new ArrayList&lt;Integer&gt;();</span>
+	private static List&lt;Season&gt; seasons;
+	// Context Menus
+	private static final int ALLEPSEEN_CONTEXT = Menu.FIRST;
+	private static final int ALLUPTOTHIS_CONTEXT = ALLEPSEEN_CONTEXT + 1;
+	private static final int ALLEPUNSEEN_CONTEXT = ALLUPTOTHIS_CONTEXT + 1;
+	private static ListView listView;
+	public static SeriesSeasonsAdapter seasonsAdapter;
+<span class="fc" id="L46">	private SwipeDetect swipeDetect = new SwipeDetect();</span>
+	private static SQLiteStore db;
+
+	@Override
+	public void onCreate(Bundle savedInstanceState) {
+<span class="fc" id="L51">		this.overridePendingTransition(R.anim.right_enter, R.anim.right_exit);</span>
+<span class="fc" id="L52">		super.onCreate(savedInstanceState);</span>
+<span class="fc" id="L53">		setContentView(R.layout.serie_seasons);</span>
+<span class="fc" id="L54">		db = SQLiteStore.getInstance(this);</span>
+<span class="fc" id="L55">		serieId = getIntent().getStringExtra(&quot;serieId&quot;);</span>
+<span class="fc" id="L56">		setTitle(db.getSerieName(serieId));</span>
+<span class="fc" id="L57">		getSeasons();</span>
+<span class="fc" id="L58">		seasonsAdapter = new SeriesSeasonsAdapter(this, R.layout.row_serie_seasons, seasons);</span>
+<span class="fc" id="L59">		setListAdapter(seasonsAdapter);</span>
+<span class="fc" id="L60">		listView = getListView();</span>
+<span class="fc" id="L61">		listView.getViewTreeObserver().addOnGlobalLayoutListener(listDone);</span>
+<span class="fc" id="L62">		registerForContextMenu(listView);</span>
+<span class="fc" id="L63">		listView.setOnTouchListener(swipeDetect);</span>
+<span class="fc" id="L64">		listView.setSelection(getIntent().getIntExtra(&quot;season&quot;, 1) -1);</span>
+<span class="pc bpc" id="L65" title="1 of 2 branches missed.">		if (getIntent().getBooleanExtra(&quot;nextEpisode&quot;, false))</span>
+<span class="fc" id="L66">			listView.setSelection(db.getNextEpisode(serieId, dvdOrder).season -1);</span>
+<span class="fc" id="L67">	}</span>
+
+	/* context menu */
+	public void onCreateContextMenu(ContextMenu menu, View v, ContextMenuInfo menuInfo) {
+<span class="nc" id="L71">		super.onCreateContextMenu(menu, v, menuInfo);</span>
+<span class="nc" id="L72">		menu.add(0, ALLEPSEEN_CONTEXT, 0, getString(R.string.messages_context_mark_seasonseen));</span>
+<span class="nc" id="L73">		menu.add(0, ALLUPTOTHIS_CONTEXT, 0, getString(R.string.messages_context_mark_asseenuptothis));</span>
+<span class="nc" id="L74">		menu.add(0, ALLEPUNSEEN_CONTEXT, 0, getString(R.string.messages_context_mark_seasonunseen));</span>
+<span class="nc" id="L75">		menu.setHeaderTitle(seasonsAdapter.getItem(((AdapterContextMenuInfo) menuInfo).position).getSeason());</span>
+<span class="nc" id="L76">	}</span>
+
+	public boolean onContextItemSelected(MenuItem item) {
+<span class="nc" id="L79">		AdapterContextMenuInfo info = (AdapterContextMenuInfo) item.getMenuInfo();</span>
+<span class="nc bnc" id="L80" title="All 4 branches missed.">		switch (item.getItemId()) {</span>
+			case ALLEPSEEN_CONTEXT :
+<span class="nc" id="L82">				db.updateUnwatchedSeason(serieId, seasonNumbers.get(info.position));</span>
+<span class="nc" id="L83">				getInfo();</span>
+<span class="nc" id="L84">				return true;</span>
+			case ALLEPUNSEEN_CONTEXT :
+<span class="nc" id="L86">				db.updateWatchedSeason(serieId, seasonNumbers.get(info.position));</span>
+<span class="nc" id="L87">				getInfo();</span>
+<span class="nc" id="L88">				return true;</span>
+			case ALLUPTOTHIS_CONTEXT :
+<span class="nc bnc" id="L90" title="All 2 branches missed.">				for (int i = 1; i &lt;= seasonNumbers.get(info.position); i++) {</span>
+<span class="nc" id="L91">					db.updateUnwatchedSeason(serieId, i);</span>
+				}
+<span class="nc" id="L93">				getInfo();</span>
+<span class="nc" id="L94">				return true;</span>
+			default :
+<span class="nc" id="L96">				return super.onContextItemSelected(item);</span>
+		}
+	}
+
+	@SuppressLint(&quot;NewApi&quot;)
+	public void openContext(View v) {
+<span class="nc bnc" id="L102" title="All 2 branches missed.">		if (Build.VERSION.SDK_INT &gt;= Build.VERSION_CODES.N)</span>
+<span class="nc" id="L103">			listView.showContextMenuForChild(v, v.getX(), v.getY());</span>
+		else
+<span class="nc" id="L105">			openContextMenu(v);</span>
+<span class="nc" id="L106">	}</span>
+
+	@Override
+	protected void onListItemClick(ListView l, View v, int position, long id) {
+<span class="pc bpc" id="L110" title="1 of 2 branches missed.">		if (swipeDetect.value != 0) return;</span>
+<span class="fc" id="L111">		Intent serieEpisode = new Intent(SerieSeasons.this, SerieEpisodes.class);</span>
+<span class="fc" id="L112">		serieEpisode.putExtra(&quot;serieId&quot;, serieId);</span>
+<span class="fc" id="L113">		serieEpisode.putExtra(&quot;seasonNumber&quot;, seasonNumbers.get(position));</span>
+<span class="fc" id="L114">		serieEpisode.putExtra(&quot;dvdOrder&quot;, dvdOrder);</span>
+<span class="pc bpc" id="L115" title="1 of 2 branches missed.">		if (seasonsAdapter.getItem(position).getUnwatched() &gt; 0)</span>
+<span class="fc" id="L116">			serieEpisode.putExtra(&quot;nextEpisode&quot;, true);</span>
+<span class="fc" id="L117">		startActivity(serieEpisode);</span>
+<span class="fc" id="L118">	}</span>
+
+	private void getSeasons() {
+<span class="fc" id="L121">		seasons = new ArrayList&lt;Season&gt;();</span>
+		try {
+<span class="fc" id="L123">			Cursor cseasons = db.Query(&quot;SELECT season FROM serie_seasons WHERE serieId = '&quot;+ serieId +&quot;'  ORDER BY 0+season ASC&quot;);	// 0+ to treat VARCHAR as integer an sort properly</span>
+<span class="fc" id="L124">			cseasons.moveToFirst();</span>
+<span class="pc bpc" id="L125" title="1 of 2 branches missed.">			if (cseasons.getCount() != 0) {</span>
+				do {
+<span class="fc" id="L127">					seasonNumbers.add(cseasons.getInt(0));</span>
+<span class="fc bfc" id="L128" title="All 2 branches covered.">				} while (cseasons.moveToNext());</span>
+			}
+<span class="fc" id="L130">			cseasons.close();</span>
+<span class="nc" id="L131">		} catch (Exception e) {</span>
+<span class="nc" id="L132">			Log.e(SQLiteStore.TAG, &quot;Error getting seasons: &quot;+ e.getMessage());</span>
+<span class="fc" id="L133">		}</span>
+<span class="fc" id="L134">		final String strSeason = getString(R.string.messages_season);</span>
+<span class="fc bfc" id="L135" title="All 2 branches covered.">		for (int i = 0; i &lt; seasonNumbers.size(); i++) {</span>
+<span class="fc" id="L136">			String season = &quot;&quot;;</span>
+<span class="fc bfc" id="L137" title="All 2 branches covered.">			if (seasonNumbers.get(i) == 0) {</span>
+<span class="fc" id="L138">				season = getString(R.string.messages_specials);</span>
+			} else {
+<span class="fc" id="L140">				season = strSeason + &quot; &quot; + seasonNumbers.get(i);</span>
+			}
+<span class="fc" id="L142">			Season newSeason = new Season(serieId, seasonNumbers.get(i), season, -1, -1, null, null);</span>
+<span class="fc" id="L143">			seasons.add(newSeason);</span>
+		}
+<span class="fc" id="L145">	}</span>
+
+	private void getInfo() {
+<span class="fc" id="L148">		new AsyncInfo().execute();</span>
+<span class="fc" id="L149">	}</span>
+
+<span class="fc" id="L151">	private final OnGlobalLayoutListener listDone = new OnGlobalLayoutListener() {</span>
+		@SuppressWarnings(&quot;deprecation&quot;)
+		@SuppressLint(&quot;NewApi&quot;)
+		public void onGlobalLayout() {
+<span class="pc bpc" id="L155" title="1 of 2 branches missed.">			if(Build.VERSION.SDK_INT &lt; Build.VERSION_CODES.JELLY_BEAN)</span>
+<span class="nc" id="L156">				listView.getViewTreeObserver().removeGlobalOnLayoutListener(listDone);</span>
+			else
+<span class="fc" id="L158">				listView.getViewTreeObserver().removeOnGlobalLayoutListener(listDone);</span>
+<span class="fc" id="L159">			getInfo();</span>
+<span class="fc" id="L160">		}</span>
+	};
+
+	private static class AsyncInfo extends AsyncTask&lt;Void, Void, Void&gt; {
+		@Override
+		protected Void doInBackground(Void... params) {
+			try {
+<span class="fc bfc" id="L167" title="All 2 branches covered.">				for (int i = 0; i &lt; seasons.size(); i++) {</span>
+<span class="fc" id="L168">					String serieId = seasons.get(i).getSerieId();</span>
+<span class="fc" id="L169">					int seasonNumber = seasons.get(i).getSNumber();</span>
+<span class="fc" id="L170">					int unwatchedAired = db.getEpsUnwatchedAired(serieId, seasonNumber, dvdOrder);</span>
+<span class="fc" id="L171">					int unwatched = db.getEpsUnwatched(serieId, seasonNumber, dvdOrder);</span>
+<span class="fc" id="L172">					seasons.get(i).setUnwatchedAired(unwatchedAired);</span>
+<span class="fc" id="L173">					seasons.get(i).setUnwatched(unwatched);</span>
+<span class="pc bpc" id="L174" title="1 of 2 branches missed.">					if (unwatched &gt; 0) {</span>
+<span class="fc" id="L175">						SQLiteStore.NextEpisode nextEpisode = db.getNextEpisode(serieId, seasonNumber, dvdOrder);</span>
+<span class="fc" id="L176">						seasons.get(i).setNextAir(nextEpisode.firstAiredDate);</span>
+<span class="fc" id="L177">						seasons.get(i).setNextEpisode(db.getNextEpisodeString(nextEpisode));</span>
+					}
+				}
+<span class="nc" id="L180">			} catch (Exception e) {</span>
+<span class="nc" id="L181">				e.printStackTrace();</span>
+<span class="fc" id="L182">			}</span>
+<span class="fc" id="L183">			return null;</span>
+		}
+
+		@Override
+		protected void onPostExecute(Void result) {
+<span class="fc" id="L188">			seasonsAdapter.notifyDataSetChanged();</span>
+<span class="fc" id="L189">			super.onPostExecute(result);</span>
+<span class="fc" id="L190">		}</span>
+	}
+
+	@Override
+	public void onRestart() {
+<span class="fc" id="L195">		super.onRestart();</span>
+<span class="fc" id="L196">		getInfo();</span>
+<span class="fc" id="L197">	}</span>
+
+	private class SeriesSeasonsAdapter extends ArrayAdapter&lt;Season&gt;
+	{
+		private List&lt;Season&gt; items;
+<span class="fc" id="L202">		private LayoutInflater vi = (LayoutInflater) getSystemService(Context.LAYOUT_INFLATER_SERVICE);</span>
+
+<span class="fc" id="L204">		private final String strEpAired = getString(R.string.messages_ep_aired);</span>
+<span class="fc" id="L205">		private final String strEps = getString(R.string.messages_episodes);</span>
+<span class="fc" id="L206">		private final String strNewEp = getString(R.string.messages_new_episode);</span>
+<span class="fc" id="L207">		private final String strNewEps = getString(R.string.messages_new_episodes);</span>
+<span class="fc" id="L208">		private final String strNextEp = getString(R.string.messages_next_episode);</span>
+<span class="fc" id="L209">		private final String strOf = getString(R.string.messages_of);</span>
+<span class="fc" id="L210">		private final String strOn = getString(R.string.messages_on);</span>
+<span class="fc" id="L211">		private final String strSeasonWatched = getString(R.string.messages_season_completely_watched);</span>
+<span class="fc" id="L212">		private final String strToBeAired = getString(R.string.messages_to_be_aired);</span>
+<span class="fc" id="L213">		private final String strToBeAiredPl = getString(R.string.messages_to_be_aired_pl);</span>
+
+<span class="fc" id="L215">		public SeriesSeasonsAdapter(Context context, int textViewResourceId, List&lt;Season&gt; seasons) {</span>
+<span class="fc" id="L216">			super(context, textViewResourceId, seasons);</span>
+<span class="fc" id="L217">			this.items = seasons;</span>
+<span class="fc" id="L218">		}</span>
+
+		public View getView(int position, View convertView, ViewGroup parent) {
+			ViewHolder holder;
+<span class="fc bfc" id="L222" title="All 2 branches covered.">			if (convertView == null) {</span>
+<span class="fc" id="L223">				convertView = vi.inflate(R.layout.row_serie_seasons, parent, false);</span>
+<span class="fc" id="L224">				holder = new ViewHolder();</span>
+<span class="fc" id="L225">				holder.season = (TextView) convertView.findViewById(R.id.serieseason);</span>
+<span class="fc" id="L226">				holder.unwatched = (TextView) convertView.findViewById(R.id.unwatched);</span>
+<span class="fc" id="L227">				holder.nextEpisode = (TextView) convertView.findViewById(R.id.nextepisode);</span>
+<span class="fc" id="L228">				holder.context = (ImageView) convertView.findViewById(R.id.seriecontext);</span>
+<span class="fc" id="L229">				convertView.setTag(holder);</span>
+			} else {
+<span class="fc" id="L231">				holder = (ViewHolder) convertView.getTag();</span>
+<span class="fc" id="L232">				holder.unwatched.setText(&quot;&quot;);</span>
+<span class="fc" id="L233">				holder.nextEpisode.setText(&quot;&quot;);</span>
+			}
+<span class="fc" id="L235">			Season s = items.get(position);</span>
+<span class="fc" id="L236">			int nunwatched = s.getUnwatched();</span>
+<span class="fc" id="L237">			int nunwatchedAired = s.getUnwatchedAired();</span>
+<span class="pc bpc" id="L238" title="1 of 2 branches missed.">			if (holder.season != null) {</span>
+<span class="fc" id="L239">				holder.season.setText(s.getSeason());</span>
+			}
+<span class="pc bpc" id="L241" title="1 of 2 branches missed.">			if (holder.unwatched != null) {</span>
+<span class="fc" id="L242">				String unwatchedText = db.getSeasonEpisodeCount(serieId, s.getSNumber(), dvdOrder)</span>
+						+&quot; &quot;+ strEps;
+<span class="fc bfc" id="L244" title="All 2 branches covered.">				if (nunwatched &gt; 0) {</span>
+<span class="fc" id="L245">					String unwatched = &quot;&quot;;</span>
+<span class="pc bpc" id="L246" title="1 of 2 branches missed.">					unwatched = nunwatched +&quot; &quot;+ (nunwatched &gt; 1 ? strNewEps : strNewEp) +&quot; &quot;;</span>
+<span class="pc bpc" id="L247" title="1 of 2 branches missed.">					if (nunwatchedAired &gt; 0)</span>
+<span class="fc bfc" id="L248" title="All 2 branches covered.">						unwatched = (nunwatchedAired == nunwatched ? &quot;&quot; : nunwatchedAired</span>
+<span class="fc" id="L249">							+&quot; &quot;+ strOf +&quot; &quot;) + unwatched + strEpAired;</span>
+					else
+<span class="nc bnc" id="L251" title="All 2 branches missed.">						unwatched += (nunwatched &gt; 1 ? strToBeAiredPl : strToBeAired);</span>
+<span class="fc" id="L252">					unwatchedText += &quot; | &quot;+ unwatched;</span>
+				}
+<span class="fc" id="L254">				holder.unwatched.setText(unwatchedText);</span>
+			}
+<span class="pc bpc" id="L256" title="1 of 2 branches missed.">			if (holder.nextEpisode != null) {</span>
+<span class="pc bpc" id="L257" title="1 of 2 branches missed.">				if (nunwatched == 0) {</span>
+<span class="nc" id="L258">					holder.nextEpisode.setText(strSeasonWatched);</span>
+<span class="nc" id="L259">					holder.nextEpisode.setEnabled(false);</span>
+<span class="fc bfc" id="L260" title="All 2 branches covered.">				} else if (nunwatched &gt; 0) {</span>
+<span class="pc bpc" id="L261" title="1 of 2 branches missed.">					holder.nextEpisode.setText((s.getNextEpisode() == null ? &quot;&quot; : s.getNextEpisode()</span>
+<span class="fc" id="L262">						.replace(&quot;[ne]&quot;, strNextEp)</span>
+<span class="fc" id="L263">						.replace(&quot;[on]&quot;, strOn)));</span>
+<span class="pc bpc" id="L264" title="2 of 4 branches missed.">					holder.nextEpisode.setEnabled(s.getNextAir() != null &amp;&amp; s.getNextAir().compareTo(Calendar.getInstance().getTime()) &lt;= 0);</span>
+				}
+			}
+<span class="pc bpc" id="L267" title="1 of 2 branches missed.">			if (holder.context != null) {</span>
+<span class="pc bpc" id="L268" title="1 of 2 branches missed.">				if (Build.VERSION.SDK_INT &gt;= Build.VERSION_CODES.LOLLIPOP)</span>
+<span class="fc" id="L269">					holder.context.setImageResource(R.drawable.context_material);</span>
+<span class="fc" id="L270">				holder.context.setVisibility(View.VISIBLE);</span>
+			}
+<span class="fc" id="L272">			return convertView;</span>
+		}
+	}
+<span class="fc" id="L275">	static class ViewHolder</span>
+	{
+		TextView season;
+		TextView unwatched;
+		TextView nextEpisode;
+		ImageView context;
+	}
+
+	@Override
+	public void onBackPressed() {
+<span class="fc" id="L285">		super.onBackPressed();</span>
+<span class="fc" id="L286">		overridePendingTransition(R.anim.left_enter, R.anim.left_exit);</span>
+<span class="fc" id="L287">	}</span>
+}
+</pre><div class="footer"><span class="right">Created with <a href="http://www.jacoco.org/jacoco">JaCoCo</a> 0.8.2.201808211720</span>Generated by the Android Gradle plugin 7.3.0</div></body></html>

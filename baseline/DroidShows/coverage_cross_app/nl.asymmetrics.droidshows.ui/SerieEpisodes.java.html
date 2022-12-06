@@ -1,0 +1,298 @@
+<?xml version="1.0" encoding="UTF-8"?><!DOCTYPE html PUBLIC "-//W3C//DTD XHTML 1.0 Strict//EN" "http://www.w3.org/TR/xhtml1/DTD/xhtml1-strict.dtd"><html xmlns="http://www.w3.org/1999/xhtml" lang="en"><head><meta http-equiv="Content-Type" content="text/html;charset=UTF-8"/><link rel="stylesheet" href="../jacoco-resources/report.css" type="text/css"/><link rel="shortcut icon" href="../jacoco-resources/report.gif" type="image/gif"/><title>SerieEpisodes.java</title><link rel="stylesheet" href="../jacoco-resources/prettify.css" type="text/css"/><script type="text/javascript" src="../jacoco-resources/prettify.js"></script></head><body onload="window['PR_TAB_WIDTH']=0;prettyPrint()"><div class="breadcrumb" id="breadcrumb"><span class="info"><a href="../jacoco-sessions.html" class="el_session">Sessions</a></span><a href="../index.html" class="el_report">debug</a> &gt; <a href="index.source.html" class="el_package">nl.asymmetrics.droidshows.ui</a> &gt; <span class="el_source">SerieEpisodes.java</span></div><h1>SerieEpisodes.java</h1><pre class="source lang-java linenums">package nl.asymmetrics.droidshows.ui;
+
+import java.sql.Date;
+import java.text.SimpleDateFormat;
+import java.util.Calendar;
+import java.util.List;
+
+import nl.asymmetrics.droidshows.DroidShows;
+import nl.asymmetrics.droidshows.R;
+import nl.asymmetrics.droidshows.utils.SQLiteStore;
+import nl.asymmetrics.droidshows.utils.SQLiteStore.EpisodeRow;
+import nl.asymmetrics.droidshows.utils.SwipeDetect;
+import android.app.DatePickerDialog;
+import android.app.ListActivity;
+import android.app.TimePickerDialog;
+import android.content.Context;
+import android.content.Intent;
+import android.content.res.ColorStateList;
+
+import android.os.Bundle;
+import android.util.Log;
+import android.view.ContextMenu;
+import android.view.LayoutInflater;
+import android.view.Menu;
+import android.view.MenuItem;
+import android.view.View;
+import android.view.View.OnLongClickListener;
+import android.view.ViewGroup;
+import android.view.ContextMenu.ContextMenuInfo;
+import android.widget.ArrayAdapter;
+import android.widget.CheckBox;
+import android.widget.DatePicker;
+import android.widget.ListView;
+import android.widget.Toast;
+import android.widget.AdapterView.AdapterContextMenuInfo;
+import android.widget.TextView;
+import android.widget.TimePicker;
+
+<span class="fc" id="L39">public class SerieEpisodes extends ListActivity {</span>
+	private EpisodesAdapter episodesAdapter;
+	private String serieName;
+	private String serieId;
+	private int seasonNumber;
+	private boolean dvdOrder;
+<span class="fc" id="L45">	private List&lt;EpisodeRow&gt; episodes = null;</span>
+	private ListView listView;
+<span class="fc" id="L47">	private SwipeDetect swipeDetect = new SwipeDetect();</span>
+	private SQLiteStore db;
+	private DatePickerDialog dateDialog;
+	private TimePickerDialog timeDialog;
+<span class="fc" id="L51">	private int backFromEpisode = -1;</span>
+<span class="fc" id="L52">	private Calendar cal = Calendar.getInstance();</span>
+
+	/* Context Menus */
+	private static final int VIEWEP_CONTEXT = Menu.FIRST;
+	private static final int SEENTIMESTAMP_CONTEXT = Menu.FIRST + 1;
+	private static final int DELEP_CONTEXT = SEENTIMESTAMP_CONTEXT + 1;
+
+	@Override
+	public void onCreate(Bundle savedInstanceState) {
+<span class="fc" id="L61">		this.overridePendingTransition(R.anim.right_enter, R.anim.right_exit);</span>
+<span class="fc" id="L62">		super.onCreate(savedInstanceState);</span>
+<span class="fc" id="L63">		setContentView(R.layout.serie_episodes);</span>
+<span class="fc" id="L64">		db = SQLiteStore.getInstance(this);</span>
+<span class="fc" id="L65">		serieId = getIntent().getStringExtra(&quot;serieId&quot;);</span>
+<span class="fc" id="L66">		serieName = db.getSerieName(serieId);</span>
+<span class="fc" id="L67">		seasonNumber = getIntent().getIntExtra(&quot;seasonNumber&quot;, 0);</span>
+<span class="fc" id="L68">		dvdOrder = getIntent().getBooleanExtra(&quot;dvdOrder&quot;, false);</span>
+<span class="pc bpc" id="L69" title="1 of 2 branches missed.">		setTitle(serieName +&quot; - &quot;+ (seasonNumber == 0 ? getString(R.string.messages_specials) : getString(R.string.messages_season) +&quot; &quot;+ seasonNumber));</span>
+<span class="fc" id="L70">		episodes = db.getEpisodeRows(serieId, seasonNumber, dvdOrder);</span>
+<span class="fc" id="L71">		episodesAdapter = new EpisodesAdapter(this, R.layout.row_serie_episodes, episodes);</span>
+<span class="fc" id="L72">		setListAdapter(episodesAdapter);</span>
+<span class="fc" id="L73">		listView = getListView();</span>
+<span class="fc" id="L74">		listView.setOnTouchListener(swipeDetect);</span>
+<span class="fc" id="L75">		registerForContextMenu(getListView());</span>
+<span class="pc bpc" id="L76" title="1 of 2 branches missed.">		if (getIntent().getBooleanExtra(&quot;nextEpisode&quot;, false))</span>
+<span class="fc" id="L77">			listView.setSelection(db.getNextEpisode(serieId, seasonNumber, dvdOrder).episode -3);</span>
+<span class="fc" id="L78">	}</span>
+
+	/* context menu */
+	public void onCreateContextMenu(ContextMenu menu, View v, ContextMenuInfo menuInfo) {
+<span class="nc" id="L82">		super.onCreateContextMenu(menu, v, menuInfo);</span>
+<span class="nc" id="L83">		menu.add(0, VIEWEP_CONTEXT, 0, getString(R.string.messsages_view_ep_details));</span>
+<span class="nc" id="L84">		menu.add(0, SEENTIMESTAMP_CONTEXT, 0, getString(R.string.messsages_edit_seen_timestamp));</span>
+<span class="nc" id="L85">		menu.add(0, DELEP_CONTEXT, 0, getString(R.string.menu_context_delete));</span>
+<span class="nc" id="L86">	}</span>
+
+	public boolean onContextItemSelected(MenuItem item) {
+<span class="nc" id="L89">		AdapterContextMenuInfo info = (AdapterContextMenuInfo) item.getMenuInfo();</span>
+<span class="nc bnc" id="L90" title="All 4 branches missed.">		switch (item.getItemId()) {</span>
+		case VIEWEP_CONTEXT:
+<span class="nc" id="L92">			startViewEpisode(info.position);</span>
+<span class="nc" id="L93">			return true;</span>
+		case SEENTIMESTAMP_CONTEXT:
+<span class="nc" id="L95">			seenTimestamp(info.position);</span>
+<span class="nc" id="L96">			return true;</span>
+		case DELEP_CONTEXT:
+<span class="nc bnc" id="L98" title="All 2 branches missed.">			if (!db.deleteEpisode(serieId, episodes.get(info.position).id))</span>
+<span class="nc" id="L99">				Toast.makeText(getApplicationContext(), &quot;Database error while deleting episode&quot;, Toast.LENGTH_LONG).show();</span>
+<span class="nc" id="L100">			episodes.remove(info.position);</span>
+<span class="nc" id="L101">			episodesAdapter.notifyDataSetChanged();</span>
+<span class="nc" id="L102">			return true;</span>
+		default:
+<span class="nc" id="L104">			return super.onContextItemSelected(item);</span>
+		}
+	}
+	
+	public void openContext(View v) {
+<span class="nc" id="L109">		this.openContextMenu(v);</span>
+<span class="nc" id="L110">	}</span>
+
+	@Override
+	protected void onListItemClick(ListView l, View v, int position, long id) {
+<span class="pc bpc" id="L114" title="1 of 2 branches missed.">		if (swipeDetect.value != 0) return;</span>
+<span class="pc bpc" id="L115" title="1 of 2 branches missed.">		if (DroidShows.fullLineCheckOption) {</span>
+			try {
+<span class="nc" id="L117">				CheckBox c = (CheckBox) v.findViewById(R.id.seen);</span>
+<span class="nc bnc" id="L118" title="All 2 branches missed.">				c.setChecked(!c.isChecked());</span>
+<span class="nc" id="L119">				check(position, v, -1);</span>
+<span class="nc" id="L120">			} catch (Exception e) {</span>
+<span class="nc" id="L121">				Log.e(SQLiteStore.TAG, &quot;Could not set episode seen state: &quot;+ e.getMessage());</span>
+<span class="nc" id="L122">			}</span>
+		} else {
+			try {
+<span class="fc" id="L125">				startViewEpisode(position);</span>
+<span class="nc" id="L126">			} catch (Exception e) {</span>
+<span class="nc" id="L127">				Log.e(SQLiteStore.TAG, e.getMessage());</span>
+<span class="fc" id="L128">			}</span>
+		}
+<span class="fc" id="L130">	}</span>
+
+	public class EpisodesAdapter extends ArrayAdapter&lt;EpisodeRow&gt; {
+
+		private List&lt;EpisodeRow&gt; items;
+<span class="fc" id="L135">		private LayoutInflater vi = (LayoutInflater) getSystemService(Context.LAYOUT_INFLATER_SERVICE);</span>
+<span class="fc" id="L136">		private ColorStateList textViewColors = new TextView(getContext()).getTextColors();</span>
+
+<span class="fc" id="L138">		private final String strAired = getString(R.string.messages_aired);</span>
+<span class="pc bpc" id="L139" title="1 of 2 branches missed.">		private final String strEp = (getString(R.string.messages_ep).isEmpty() ? &quot;&quot; : getString(R.string.messages_ep) +&quot; &quot;);</span>
+		
+<span class="fc" id="L141">		public EpisodesAdapter(Context context, int textViewResourceId, List&lt;EpisodeRow&gt; episodes) {</span>
+<span class="fc" id="L142">			super(context, textViewResourceId, episodes);</span>
+<span class="fc" id="L143">			this.items = episodes;</span>
+<span class="fc" id="L144">		}</span>
+
+		@Override
+		public View getView(final int position, View convertView, ViewGroup parent) {
+			final ViewHolder holder;
+
+<span class="fc bfc" id="L150" title="All 2 branches covered.">			if (convertView == null) {</span>
+<span class="fc" id="L151">				convertView = vi.inflate(R.layout.row_serie_episodes, parent, false);</span>
+
+<span class="fc" id="L153">				holder = new ViewHolder();</span>
+<span class="fc" id="L154">				holder.name = (TextView) convertView.findViewById(R.id.name);</span>
+<span class="fc" id="L155">				holder.aired = (TextView) convertView.findViewById(R.id.aired);</span>
+<span class="fc" id="L156">				holder.seenTimestamp = (TextView) convertView.findViewById(R.id.seenTimestamp);</span>
+<span class="fc" id="L157">				holder.seen = (CheckBox) convertView.findViewById(R.id.seen);</span>
+<span class="fc" id="L158">				holder.seen.setOnLongClickListener(new OnLongClickListener() {</span>
+					public boolean onLongClick(View v) {
+<span class="nc" id="L160">						seenTimestamp(listView.getPositionForView(v));</span>
+<span class="nc" id="L161">						return true;</span>
+					}
+				});
+
+<span class="fc" id="L165">				convertView.setTag(holder);</span>
+			} else {
+<span class="fc" id="L167">				holder = (ViewHolder) convertView.getTag();</span>
+			}
+
+<span class="fc" id="L170">			EpisodeRow ep = items.get(position);</span>
+
+<span class="pc bpc" id="L172" title="1 of 2 branches missed.">			if (holder.name != null) {</span>
+<span class="fc" id="L173">				String name = strEp + ep.name;</span>
+<span class="fc" id="L174">				holder.name.setText(name);</span>
+			}
+			
+<span class="pc bpc" id="L177" title="1 of 2 branches missed.">			if (holder.aired != null) {</span>
+<span class="pc bpc" id="L178" title="1 of 2 branches missed.">				if (!ep.aired.isEmpty())</span>
+<span class="fc" id="L179">					holder.aired.setText(strAired + &quot; &quot;+ ep.aired);</span>
+				else
+<span class="nc" id="L181">					holder.aired.setText(&quot;&quot;);</span>
+<span class="pc bpc" id="L182" title="1 of 2 branches missed.">				holder.aired.setEnabled(ep.airedDate != null &amp;&amp;</span>
+<span class="fc bfc" id="L183" title="All 2 branches covered.">						ep.airedDate.compareTo(Calendar.getInstance().getTime()) &lt;= 0);</span>
+			}
+			
+<span class="pc bpc" id="L186" title="1 of 2 branches missed.">			holder.seen.setChecked(ep.seen &gt; 0);</span>
+<span class="pc bpc" id="L187" title="1 of 2 branches missed.">			if (ep.seen &gt; 1) {	// If seen value is a date</span>
+<span class="nc" id="L188">				holder.seenTimestamp.setTextColor(textViewColors);</span>
+<span class="nc" id="L189">				holder.seenTimestamp.setText(SimpleDateFormat.getDateInstance().format(new Date(ep.seen * 1000)));</span>
+			} else
+<span class="fc" id="L191">				holder.seenTimestamp.setText(&quot;&quot;);</span>
+
+<span class="fc" id="L193">			return convertView;</span>
+		}
+	}
+
+<span class="fc" id="L197">	static class ViewHolder {</span>
+		TextView name, aired, seenTimestamp;
+		CheckBox seen;
+	}
+
+	private View getViewByPosition(int position) {
+		try {
+<span class="fc" id="L204">			final int firstListItemPosition = listView.getFirstVisiblePosition();</span>
+<span class="fc" id="L205">			final int lastListItemPosition = firstListItemPosition + listView.getChildCount() - 1;</span>
+<span class="pc bpc" id="L206" title="2 of 4 branches missed.">			if (position &lt; firstListItemPosition || position &gt; lastListItemPosition)</span>
+<span class="nc" id="L207">				return listView.getAdapter().getView(position, null, listView); </span>
+			else					
+<span class="fc" id="L209">				return listView.getChildAt(position - firstListItemPosition);</span>
+<span class="nc" id="L210">		} catch (Exception e) {</span>
+<span class="nc" id="L211">			e.printStackTrace();</span>
+<span class="nc" id="L212">			return null;</span>
+		}
+	}
+	
+	public void check(View v) {
+<span class="fc" id="L217">		int position = listView.getPositionForView(v);</span>
+<span class="fc" id="L218">		check(position, v, -1);</span>
+<span class="fc" id="L219">	}</span>
+	
+	private void check(int position, long seen) {
+<span class="nc" id="L222">		check(position, getViewByPosition(position), seen);</span>
+<span class="nc" id="L223">	}</span>
+	
+	private void check(int position, View v, long seen) {
+<span class="pc bpc" id="L226" title="1 of 2 branches missed.">		if (v != null) {</span>
+<span class="fc" id="L227">			CheckBox c = (CheckBox) v.findViewById(R.id.seen);</span>
+<span class="fc" id="L228">			TextView d = (TextView) getViewByPosition(position).findViewById(R.id.seenTimestamp);</span>
+<span class="pc bpc" id="L229" title="1 of 2 branches missed.">			if (seen &gt; -1)</span>
+<span class="nc" id="L230">				c.setChecked(true);</span>
+<span class="pc bpc" id="L231" title="1 of 2 branches missed.">			if (c.isChecked()) {</span>
+<span class="fc" id="L232">				d.setTextColor(getResources().getColor(android.R.color.white));</span>
+<span class="pc bpc" id="L233" title="1 of 2 branches missed.">				if (seen == -1)</span>
+<span class="fc" id="L234">					seen = System.currentTimeMillis() / 1000;</span>
+<span class="fc" id="L235">				episodes.get(position).seen = seen;</span>
+<span class="fc" id="L236">				d.setText(SimpleDateFormat.getDateInstance().format(new Date(seen * 1000)));</span>
+			} else {
+<span class="nc" id="L238">				d.setText(&quot;&quot;);</span>
+<span class="nc" id="L239">				episodes.get(position).seen = 0;</span>
+			}
+		}
+<span class="fc" id="L242">		db.updateUnwatchedEpisode(serieId, episodes.get(position).id, seen);</span>
+<span class="fc" id="L243">	}</span>
+
+	private void seenTimestamp(final int position) {
+<span class="nc" id="L246">		long seen = episodes.get(position).seen;</span>
+<span class="nc bnc" id="L247" title="All 2 branches missed.">		if (seen &gt; 1)</span>
+<span class="nc" id="L248">			cal.setTimeInMillis(seen * 1000);</span>
+		else
+<span class="nc" id="L250">			cal.setTimeInMillis(System.currentTimeMillis());</span>
+<span class="nc" id="L251">		int sYear = cal.get(Calendar.YEAR);</span>
+<span class="nc" id="L252">		int sMonth = cal.get(Calendar.MONTH);</span>
+<span class="nc" id="L253">		int sDay = cal.get(Calendar.DAY_OF_MONTH);</span>
+<span class="nc" id="L254">		final int sHour = cal.get(Calendar.HOUR_OF_DAY);</span>
+<span class="nc" id="L255">		final int sMinute = cal.get(Calendar.MINUTE);</span>
+	
+<span class="nc" id="L257">		dateDialog = new DatePickerDialog(this, new DatePickerDialog.OnDateSetListener() {			</span>
+			public void onDateSet(DatePicker view, int year, int month, int day) {
+<span class="nc" id="L259">				cal.set(year, month, day);</span>
+<span class="nc" id="L260">				timeDialog = new TimePickerDialog(view.getContext(), new TimePickerDialog.OnTimeSetListener() {</span>
+					public void onTimeSet(TimePicker view, int hour, int minute) {
+<span class="nc" id="L262">						cal.set(Calendar.HOUR_OF_DAY, hour);</span>
+<span class="nc" id="L263">						cal.set(Calendar.MINUTE, minute);</span>
+<span class="nc" id="L264">						check(position, cal.getTimeInMillis() / 1000);</span>
+<span class="nc" id="L265">					}</span>
+				}, sHour, sMinute, true);
+<span class="nc" id="L267">				timeDialog.show();</span>
+<span class="nc" id="L268">			}</span>
+		}, sYear, sMonth, sDay);
+<span class="nc" id="L270">		dateDialog.show();</span>
+<span class="nc" id="L271">	}</span>
+
+	private void startViewEpisode(int position) {
+<span class="fc" id="L274">		backFromEpisode = position;</span>
+<span class="fc" id="L275">		Intent viewEpisode = new Intent(SerieEpisodes.this, ViewEpisode.class);</span>
+<span class="fc" id="L276">		viewEpisode.putExtra(&quot;serieId&quot;, serieId);</span>
+<span class="fc" id="L277">		viewEpisode.putExtra(&quot;serieName&quot;, serieName);</span>
+<span class="fc" id="L278">		viewEpisode.putExtra(&quot;episodeId&quot;, episodes.get(position).id);</span>
+<span class="fc" id="L279">		startActivity(viewEpisode);</span>
+<span class="fc" id="L280">	}</span>
+	
+	@Override
+	public void onBackPressed() {
+<span class="fc" id="L284">		super.onBackPressed();</span>
+<span class="fc" id="L285">		overridePendingTransition(R.anim.left_enter, R.anim.left_exit);</span>
+<span class="fc" id="L286">	}</span>
+
+	@Override
+	public void onRestart() {
+<span class="fc" id="L290">		super.onRestart();</span>
+<span class="pc bpc" id="L291" title="1 of 2 branches missed.">		if (backFromEpisode != -1) {</span>
+<span class="fc" id="L292">			episodes.set(backFromEpisode, db.getEpisodeRow(serieId, seasonNumber, episodes.get(backFromEpisode).id, dvdOrder));</span>
+<span class="fc" id="L293">			episodesAdapter.notifyDataSetChanged();</span>
+<span class="fc" id="L294">			backFromEpisode = -1;</span>
+		}
+<span class="fc" id="L296">	}</span>
+}
+</pre><div class="footer"><span class="right">Created with <a href="http://www.jacoco.org/jacoco">JaCoCo</a> 0.8.2.201808211720</span>Generated by the Android Gradle plugin 7.3.0</div></body></html>

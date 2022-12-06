@@ -1,0 +1,302 @@
+<?xml version="1.0" encoding="UTF-8"?><!DOCTYPE html PUBLIC "-//W3C//DTD XHTML 1.0 Strict//EN" "http://www.w3.org/TR/xhtml1/DTD/xhtml1-strict.dtd"><html xmlns="http://www.w3.org/1999/xhtml" lang="en"><head><meta http-equiv="Content-Type" content="text/html;charset=UTF-8"/><link rel="stylesheet" href="../jacoco-resources/report.css" type="text/css"/><link rel="shortcut icon" href="../jacoco-resources/report.gif" type="image/gif"/><title>Episode.java</title><link rel="stylesheet" href="../jacoco-resources/prettify.css" type="text/css"/><script type="text/javascript" src="../jacoco-resources/prettify.js"></script></head><body onload="window['PR_TAB_WIDTH']=0;prettyPrint()"><div class="breadcrumb" id="breadcrumb"><span class="info"><a href="../jacoco-sessions.html" class="el_session">Sessions</a></span><a href="../index.html" class="el_report">debug</a> &gt; <a href="index.source.html" class="el_package">nl.asymmetrics.droidshows.thetvdb.model</a> &gt; <span class="el_source">Episode.java</span></div><h1>Episode.java</h1><pre class="source lang-java linenums">package nl.asymmetrics.droidshows.thetvdb.model;
+
+import java.util.ArrayList;
+import java.util.List;
+
+import nl.asymmetrics.droidshows.utils.SQLiteStore;
+import android.database.DatabaseUtils;
+import android.database.sqlite.SQLiteException;
+import android.text.TextUtils;
+import android.util.Log;
+
+<span class="fc" id="L12">public class Episode</span>
+{
+	private String id;
+	private String combinedEpisodeNumber;
+	private String combinedSeason;
+	private String dvdChapter;
+	private String dvdDiscId;
+	private String dvdEpisodeNumber;
+	private String dvdSeason;
+<span class="fc" id="L21">	private List&lt;String&gt; directors = new ArrayList&lt;String&gt;();</span>
+	private String epImgFlag;
+	private String episodeName;
+	private int episodeNumber;
+	private String firstAired;
+<span class="fc" id="L26">	private List&lt;String&gt; guestStars = new ArrayList&lt;String&gt;();</span>
+	private String imdbId;
+	private String language;
+	private String overview;
+	private String productionCode;
+	private String rating;
+	private int seasonNumber;
+<span class="fc" id="L33">	private List&lt;String&gt; writers = new ArrayList&lt;String&gt;();</span>
+	private String absoluteNumber;
+	private String filename;
+	private String lastUpdated;
+	private String seriesId;
+	private String seasonId;
+	// for user interaction
+	private boolean seen;
+
+	public String getId() {
+<span class="nc" id="L43">		return id;</span>
+	}
+
+	public void setId(String id) {
+<span class="fc" id="L47">		this.id = id;</span>
+<span class="fc" id="L48">	}</span>
+
+	public String getCombinedEpisodeNumber() {
+<span class="nc" id="L51">		return combinedEpisodeNumber;</span>
+	}
+
+	public void setCombinedEpisodeNumber(String combinedEpisodeNumber) {
+<span class="fc" id="L55">		this.combinedEpisodeNumber = combinedEpisodeNumber;</span>
+<span class="fc" id="L56">	}</span>
+
+	public String getCombinedSeason() {
+<span class="nc" id="L59">		return combinedSeason;</span>
+	}
+
+	public void setCombinedSeason(String combinedSeason) {
+<span class="fc" id="L63">		this.combinedSeason = combinedSeason;</span>
+<span class="fc" id="L64">	}</span>
+
+	public String getDvdChapter() {
+<span class="nc" id="L67">		return dvdChapter;</span>
+	}
+
+	public void setDvdChapter(String dvdChapter) {
+<span class="fc" id="L71">		this.dvdChapter = dvdChapter;</span>
+<span class="fc" id="L72">	}</span>
+
+	public String getDvdDiscId() {
+<span class="nc" id="L75">		return dvdDiscId;</span>
+	}
+
+	public void setDvdDiscId(String dvdDiscId) {
+<span class="nc" id="L79">		this.dvdDiscId = dvdDiscId;</span>
+<span class="nc" id="L80">	}</span>
+
+	public String getDvdEpisodeNumber() {
+<span class="nc" id="L83">		return dvdEpisodeNumber;</span>
+	}
+
+	public void setDvdEpisodeNumber(String dvdEpisodeNumber) {
+<span class="fc" id="L87">		this.dvdEpisodeNumber = dvdEpisodeNumber;</span>
+<span class="fc" id="L88">	}</span>
+
+	public String getDvdSeason() {
+<span class="nc" id="L91">		return dvdSeason;</span>
+	}
+
+	public void setDvdSeason(String dvdSeason) {
+<span class="fc" id="L95">		this.dvdSeason = dvdSeason;</span>
+<span class="fc" id="L96">	}</span>
+
+	public List&lt;String&gt; getDirectors() {
+<span class="nc" id="L99">		return directors;</span>
+	}
+
+	public void setDirectors(List&lt;String&gt; directors) {
+<span class="fc" id="L103">		this.directors = directors;</span>
+<span class="fc" id="L104">	}</span>
+
+	public void addDirector(String director) {
+<span class="nc" id="L107">		this.directors.add(director);</span>
+<span class="nc" id="L108">	}</span>
+
+	public String getEpImgFlag() {
+<span class="nc" id="L111">		return epImgFlag;</span>
+	}
+
+	public void setEpImgFlag(String epImgFlag) {
+<span class="nc" id="L115">		this.epImgFlag = epImgFlag;</span>
+<span class="nc" id="L116">	}</span>
+
+	public String getEpisodeName() {
+<span class="fc" id="L119">		return episodeName;</span>
+	}
+
+	public void setEpisodeName(String episodeName) {
+<span class="fc" id="L123">		this.episodeName = episodeName;</span>
+<span class="fc" id="L124">	}</span>
+
+	public int getEpisodeNumber() {
+<span class="nc" id="L127">		return episodeNumber;</span>
+	}
+
+	public void setEpisodeNumber(int episodeNumber) {
+<span class="fc" id="L131">		this.episodeNumber = episodeNumber;</span>
+<span class="fc" id="L132">	}</span>
+
+	public String getFirstAired() {
+<span class="nc" id="L135">		return firstAired;</span>
+	}
+
+	public void setFirstAired(String firstAired) {
+<span class="fc" id="L139">		this.firstAired = firstAired;</span>
+<span class="fc" id="L140">	}</span>
+
+	public List&lt;String&gt; getGuestStars() {
+<span class="nc" id="L143">		return guestStars;</span>
+	}
+
+	public void setGuestStars(List&lt;String&gt; guestStars) {
+<span class="fc" id="L147">		this.guestStars = guestStars;</span>
+<span class="fc" id="L148">	}</span>
+
+	public void addGuestStar(String guestStar) {
+<span class="nc" id="L151">		this.guestStars.add(guestStar);</span>
+<span class="nc" id="L152">	}</span>
+
+	public String getImdbId() {
+<span class="nc" id="L155">		return imdbId;</span>
+	}
+
+	public void setImdbId(String imdbId) {
+<span class="fc" id="L159">		this.imdbId = imdbId;</span>
+<span class="fc" id="L160">	}</span>
+
+	public String getLanguage() {
+<span class="nc" id="L163">		return language;</span>
+	}
+
+	public void setLanguage(String language) {
+<span class="fc" id="L167">		this.language = language;</span>
+<span class="fc" id="L168">	}</span>
+
+	public String getOverview() {
+<span class="nc" id="L171">		return overview;</span>
+	}
+
+	public void setOverview(String overview) {
+<span class="fc" id="L175">		this.overview = overview;</span>
+<span class="fc" id="L176">	}</span>
+
+	public String getProductionCode() {
+<span class="nc" id="L179">		return productionCode;</span>
+	}
+
+	public void setProductionCode(String productionCode) {
+<span class="nc" id="L183">		this.productionCode = productionCode;</span>
+<span class="nc" id="L184">	}</span>
+
+	public String getRating() {
+<span class="nc" id="L187">		return rating;</span>
+	}
+
+	public void setRating(String rating) {
+<span class="fc" id="L191">		this.rating = rating;</span>
+<span class="fc" id="L192">	}</span>
+
+	public int getSeasonNumber() {
+<span class="fc" id="L195">		return seasonNumber;</span>
+	}
+
+	public void setSeasonNumber(int seasonNumber) {
+<span class="fc" id="L199">		this.seasonNumber = seasonNumber;</span>
+<span class="fc" id="L200">	}</span>
+
+	public List&lt;String&gt; getWriters() {
+<span class="nc" id="L203">		return writers;</span>
+	}
+
+	public void setWriters(List&lt;String&gt; writers) {
+<span class="fc" id="L207">		this.writers = writers;</span>
+<span class="fc" id="L208">	}</span>
+
+	public void addWriter(String writer) {
+<span class="nc" id="L211">		this.writers.add(writer);</span>
+<span class="nc" id="L212">	}</span>
+
+	public String getAbsoluteNumber() {
+<span class="nc" id="L215">		return absoluteNumber;</span>
+	}
+
+	public void setAbsoluteNumber(String absoluteNumber) {
+<span class="fc" id="L219">		this.absoluteNumber = absoluteNumber;</span>
+<span class="fc" id="L220">	}</span>
+
+	public String getFilename() {
+<span class="nc" id="L223">		return filename;</span>
+	}
+
+	public void setFilename(String filename) {
+<span class="fc" id="L227">		this.filename = filename;</span>
+<span class="fc" id="L228">	}</span>
+
+	public String getLastUpdated() {
+<span class="nc" id="L231">		return lastUpdated;</span>
+	}
+
+	public void setLastUpdated(String lastUpdated) {
+<span class="fc" id="L235">		this.lastUpdated = lastUpdated;</span>
+<span class="fc" id="L236">	}</span>
+
+	public String getSeriesId() {
+<span class="nc" id="L239">		return seriesId;</span>
+	}
+
+	public void setSeriesId(String seriesId) {
+<span class="fc" id="L243">		this.seriesId = seriesId;</span>
+<span class="fc" id="L244">	}</span>
+
+	public String getSeasonId() {
+<span class="nc" id="L247">		return seasonId;</span>
+	}
+
+	public void setSeasonId(String seasonId) {
+<span class="fc" id="L251">		this.seasonId = seasonId;</span>
+<span class="fc" id="L252">	}</span>
+
+	public boolean getSeen() {
+<span class="nc" id="L255">		return this.seen;</span>
+	}
+
+	public void setSeen(boolean visto) {
+<span class="nc" id="L259">		this.seen = visto;</span>
+<span class="nc" id="L260">	}</span>
+
+	public boolean saveToDB(SQLiteStore SQLS) {
+		try {
+<span class="fc bfc" id="L264" title="All 2 branches covered.">			for (int d = 0; d &lt; this.directors.size(); d++) {</span>
+<span class="fc" id="L265">				SQLS.execQuery(&quot;INSERT INTO directors (serieId, episodeId, director) VALUES ('&quot;+ this.seriesId</span>
+<span class="fc" id="L266">					+&quot;', '&quot;+ this.id +&quot;', &quot;+ DatabaseUtils.sqlEscapeString(this.directors.get(d)) +&quot;);&quot;);</span>
+			}
+<span class="fc bfc" id="L268" title="All 2 branches covered.">			for (int g = 0; g &lt; this.guestStars.size(); g++) {</span>
+<span class="fc" id="L269">				SQLS.execQuery(&quot;INSERT INTO guestStars (serieId, episodeId, guestStar) VALUES ('&quot;+ this.seriesId</span>
+<span class="fc" id="L270">					+&quot;', '&quot;+ this.id +&quot;', &quot;+ DatabaseUtils.sqlEscapeString(this.guestStars.get(g)) +&quot;);&quot;);</span>
+			}
+<span class="fc bfc" id="L272" title="All 2 branches covered.">			for (int w = 0; w &lt; this.writers.size(); w++) {</span>
+<span class="fc" id="L273">				SQLS.execQuery(&quot;INSERT INTO writers (serieId, episodeId, writer) VALUES ('&quot;+ this.seriesId</span>
+<span class="fc" id="L274">					+&quot;', '&quot;+ this.id +&quot;', &quot;+ DatabaseUtils.sqlEscapeString(this.writers.get(w)) +&quot;);&quot;);</span>
+			}
+<span class="fc" id="L276">			int iseen = 0;</span>
+<span class="pc bpc" id="L277" title="1 of 2 branches missed.">			if (this.seen) {</span>
+<span class="nc" id="L278">				iseen = 1;</span>
+			}
+<span class="fc bfc" id="L280" title="All 2 branches covered.">			if (TextUtils.isEmpty(this.overview))</span>
+<span class="fc" id="L281">				this.overview = &quot;&quot;;</span>
+<span class="pc bpc" id="L282" title="1 of 2 branches missed.">			if (TextUtils.isEmpty(this.episodeName))</span>
+<span class="nc" id="L283">				this.episodeName = &quot;&quot;;</span>
+<span class="fc" id="L284">			SQLS.execQuery(&quot;INSERT INTO episodes (serieId, id, combinedEpisodeNumber, combinedSeason, &quot;</span>
+			+&quot;dvdChapter, dvdDiscId, dvdEpisodeNumber, dvdSeason, epImgFlag, episodeName, &quot;
+			+&quot;episodeNumber, firstAired, imdbId, language, overview, productionCode, rating, seasonNumber, &quot;
+			+&quot;absoluteNumber, filename, lastUpdated, seasonId, seen) VALUES ('&quot;+ this.seriesId
+			+&quot;', '&quot;+ this.id +&quot;', '&quot;+ this.combinedEpisodeNumber +&quot;', '&quot;+ this.combinedSeason
+			+&quot;', '&quot;+ this.dvdChapter +&quot;', '&quot;+ this.dvdDiscId +&quot;', '&quot;+ this.dvdEpisodeNumber
+<span class="fc" id="L290">			+&quot;', '&quot;+ this.dvdSeason +&quot;', '&quot;+ this.epImgFlag +&quot;', &quot;+ DatabaseUtils.sqlEscapeString(this.episodeName)</span>
+			+&quot;, &quot; + this.episodeNumber +&quot;, '&quot;+ this.firstAired +&quot;', '&quot;+ this.imdbId +&quot;', '&quot;+ this.language
+<span class="fc" id="L292">			+&quot;', &quot;+ DatabaseUtils.sqlEscapeString(this.overview) +&quot;, '&quot;+ this.productionCode +&quot;', '&quot;+ this.rating</span>
+			+&quot;', &quot;+ this.seasonNumber +&quot;, '&quot;+ this.absoluteNumber +&quot;', '&quot;+ this.filename +&quot;', '&quot;+ this.lastUpdated
+			+&quot;', '&quot;+ this.seasonId +&quot;', &quot;+ iseen +&quot;);&quot;);
+<span class="nc" id="L295">		} catch (SQLiteException e) {</span>
+<span class="nc" id="L296">			Log.e(&quot;DroidShows&quot;, e.getMessage());</span>
+<span class="nc" id="L297">			return false;</span>
+<span class="fc" id="L298">		}</span>
+<span class="fc" id="L299">		return true;</span>
+	}
+}
+</pre><div class="footer"><span class="right">Created with <a href="http://www.jacoco.org/jacoco">JaCoCo</a> 0.8.2.201808211720</span>Generated by the Android Gradle plugin 7.3.0</div></body></html>

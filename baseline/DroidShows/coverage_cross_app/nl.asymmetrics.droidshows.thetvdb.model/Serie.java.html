@@ -1,0 +1,313 @@
+<?xml version="1.0" encoding="UTF-8"?><!DOCTYPE html PUBLIC "-//W3C//DTD XHTML 1.0 Strict//EN" "http://www.w3.org/TR/xhtml1/DTD/xhtml1-strict.dtd"><html xmlns="http://www.w3.org/1999/xhtml" lang="en"><head><meta http-equiv="Content-Type" content="text/html;charset=UTF-8"/><link rel="stylesheet" href="../jacoco-resources/report.css" type="text/css"/><link rel="shortcut icon" href="../jacoco-resources/report.gif" type="image/gif"/><title>Serie.java</title><link rel="stylesheet" href="../jacoco-resources/prettify.css" type="text/css"/><script type="text/javascript" src="../jacoco-resources/prettify.js"></script></head><body onload="window['PR_TAB_WIDTH']=0;prettyPrint()"><div class="breadcrumb" id="breadcrumb"><span class="info"><a href="../jacoco-sessions.html" class="el_session">Sessions</a></span><a href="../index.html" class="el_report">debug</a> &gt; <a href="index.source.html" class="el_package">nl.asymmetrics.droidshows.thetvdb.model</a> &gt; <span class="el_source">Serie.java</span></div><h1>Serie.java</h1><pre class="source lang-java linenums">package nl.asymmetrics.droidshows.thetvdb.model;
+
+import java.util.ArrayList;
+import java.util.List;
+
+import nl.asymmetrics.droidshows.utils.SQLiteStore;
+import android.database.DatabaseUtils;
+import android.database.sqlite.SQLiteException;
+import android.text.TextUtils;
+import android.util.Log;
+
+<span class="fc" id="L12">public class Serie {</span>
+
+    private String id;
+    private String serieId;
+    private String language;
+<span class="fc" id="L17">    private String serieName = &quot;&quot;;</span>
+    private String banner;
+<span class="fc" id="L19">    private String overview = &quot;&quot;;</span>
+    private String firstAired;
+    private String imdbId;
+    private String zap2ItId;
+<span class="fc" id="L23">    private List&lt;String&gt; actors = new ArrayList&lt;String&gt;();</span>
+    private String airsDayOfWeek;
+    private String airsTime;
+    private String contentRating;
+<span class="fc" id="L27">    private List&lt;String&gt; genres = new ArrayList&lt;String&gt;();</span>
+    private String network;
+    private String rating;
+    private String runtime;
+    private String status;
+    private String fanart;
+    private String lastUpdated;
+    private String poster;
+    //custom attributes
+<span class="fc" id="L36">    private List&lt;Episode&gt; episodes = new ArrayList&lt;Episode&gt;();</span>
+    private List&lt;Integer&gt; nseasons;
+<span class="fc" id="L38">    private String posterInCache = &quot;&quot;;</span>
+<span class="fc" id="L39">    private String posterThumb = &quot;&quot;;</span>
+<span class="fc" id="L40">    private int passiveStatus = 0;</span>
+<span class="fc" id="L41">    private boolean dvdOrder = false;</span>
+
+    public String getId() {
+<span class="fc" id="L44">        return id;</span>
+    }
+
+	    public void setId(String id) {
+<span class="fc" id="L48">	        this.id = id;</span>
+<span class="fc" id="L49">	    }</span>
+
+    public String getSerieId() {
+<span class="nc" id="L52">        return serieId;</span>
+    }
+
+	    public void setSerieId(String serieId) {
+<span class="nc" id="L56">	        this.serieId = serieId;</span>
+<span class="nc" id="L57">	    }</span>
+
+    public String getLanguage() {
+<span class="fc" id="L60">        return language;</span>
+    }
+
+	    public void setLanguage(String language) {
+<span class="fc" id="L64">	        this.language = language;</span>
+<span class="fc" id="L65">	    }</span>
+
+    public String getSerieName() {
+<span class="fc" id="L68">        return serieName;</span>
+    }
+
+	    public void setSerieName(String seriesName) {
+<span class="fc" id="L72">	        this.serieName = seriesName;</span>
+<span class="fc" id="L73">	    }</span>
+
+    public String getBanner() {
+<span class="nc" id="L76">        return banner;</span>
+    }
+
+	    public void setBanner(String banner) {
+<span class="fc" id="L80">	        this.banner = banner;</span>
+<span class="fc" id="L81">	    }</span>
+
+    public String getOverview() {
+<span class="fc" id="L84">        return overview;</span>
+    }
+
+	    public void setOverview(String overview) {
+<span class="fc" id="L88">	        this.overview = overview;</span>
+<span class="fc" id="L89">	    }</span>
+
+    public String getFirstAired() {
+<span class="nc" id="L92">        return firstAired;</span>
+    }
+
+	    public void setFirstAired(String firstAired) {
+<span class="fc" id="L96">	        this.firstAired = firstAired;</span>
+<span class="fc" id="L97">	    }</span>
+
+    public String getImdbId() {
+<span class="nc" id="L100">        return imdbId;</span>
+    }
+
+	    public void setImdbId(String imdbId) {
+<span class="fc" id="L104">	        this.imdbId = imdbId;</span>
+<span class="fc" id="L105">	    }</span>
+
+    public String getZap2ItId() {
+<span class="nc" id="L108">        return zap2ItId;</span>
+    }
+
+	    public void setZap2ItId(String zap2ItId) {
+<span class="nc" id="L112">	        this.zap2ItId = zap2ItId;</span>
+<span class="nc" id="L113">	    }</span>
+
+    public List&lt;String&gt; getActors() {
+<span class="nc" id="L116">        return actors;</span>
+    }
+
+	    public void setActors(List&lt;String&gt; actors) {
+<span class="fc" id="L120">	        this.actors = actors;</span>
+<span class="fc" id="L121">	    }</span>
+
+	    public void addActor(String actor) {
+<span class="nc" id="L124">	        this.actors.add(actor);</span>
+<span class="nc" id="L125">	    }</span>
+
+    public String getAirsDayOfWeek() {
+<span class="nc" id="L128">        return airsDayOfWeek;</span>
+    }
+
+	    public void setAirsDayOfWeek(String airsDayOfWeek) {
+<span class="fc" id="L132">	        this.airsDayOfWeek = airsDayOfWeek;</span>
+<span class="fc" id="L133">	    }</span>
+
+    public String getAirsTime() {
+<span class="nc" id="L136">        return airsTime;</span>
+    }
+
+	    public void setAirsTime(String airsTime) {
+<span class="fc" id="L140">	        this.airsTime = airsTime;</span>
+<span class="fc" id="L141">	    }</span>
+
+    public String getContentRating() {
+<span class="nc" id="L144">        return contentRating;</span>
+    }
+
+	    public void setContentRating(String contentRating) {
+<span class="fc" id="L148">	        this.contentRating = contentRating;</span>
+<span class="fc" id="L149">	    }</span>
+
+    public List&lt;String&gt; getGenres() {
+<span class="nc" id="L152">        return genres;</span>
+    }
+
+	    public void setGenres(List&lt;String&gt; genres) {
+<span class="fc" id="L156">	        this.genres = genres;</span>
+<span class="fc" id="L157">	    }</span>
+
+	    public void addGenre(String genre) {
+<span class="nc" id="L160">	        this.genres.add(genre);</span>
+<span class="nc" id="L161">	    }</span>
+
+    public String getNetwork() {
+<span class="nc" id="L164">        return network;</span>
+    }
+
+	    public void setNetwork(String network) {
+<span class="fc" id="L168">	        this.network = network;</span>
+<span class="fc" id="L169">	    }</span>
+
+    public String getRating() {
+<span class="nc" id="L172">        return rating;</span>
+    }
+
+	    public void setRating(String rating) {
+<span class="fc" id="L176">	        this.rating = rating;</span>
+<span class="fc" id="L177">	    }</span>
+
+    public String getRuntime() {
+<span class="nc" id="L180">        return runtime;</span>
+    }
+
+	    public void setRuntime(String runtime) {
+<span class="fc" id="L184">	        this.runtime = runtime;</span>
+<span class="fc" id="L185">	    }</span>
+
+    public String getStatus() {
+<span class="fc" id="L188">        return status;</span>
+    }
+
+	    public void setStatus(String status) {
+<span class="fc" id="L192">	        this.status = status;</span>
+<span class="fc" id="L193">	    }</span>
+
+    public String getFanart() {
+<span class="nc" id="L196">        return fanart;</span>
+    }
+
+	    public void setFanart(String fanart) {
+<span class="fc" id="L200">	        this.fanart = fanart;</span>
+<span class="fc" id="L201">	    }</span>
+
+    public String getLastUpdated() {
+<span class="nc" id="L204">        return lastUpdated;</span>
+    }
+
+	    public void setLastUpdated(String lastUpdated) {
+<span class="fc" id="L208">	        this.lastUpdated = lastUpdated;</span>
+<span class="fc" id="L209">	    }</span>
+
+    public String getPoster() {
+<span class="fc" id="L212">        return poster;</span>
+    }
+
+	    public void setPoster(String poster) {
+<span class="fc" id="L216">	        this.poster = poster;</span>
+<span class="fc" id="L217">	    }</span>
+
+    public List&lt;Episode&gt; getEpisodes() {
+<span class="nc" id="L220">        return episodes;</span>
+    }
+
+	    public void setEpisodes(List&lt;Episode&gt; episodes) {
+<span class="fc" id="L224">	        this.episodes = episodes;</span>
+<span class="fc" id="L225">	    }</span>
+
+    public List&lt;Integer&gt; getNSeasons(){
+<span class="nc" id="L228">        return nseasons;</span>
+    }
+
+	    public void setNSeasons(List&lt;Integer&gt; nseasons) {
+<span class="fc" id="L232">	        this.nseasons = nseasons;</span>
+<span class="fc" id="L233">	    }</span>
+
+    public String getPosterInCache() {
+<span class="nc" id="L236">        return posterInCache;</span>
+    }
+
+	    public void setPosterInCache(String posterInCache) {
+<span class="fc" id="L240">	        this.posterInCache = posterInCache;</span>
+<span class="fc" id="L241">	    }</span>
+
+    public String getPosterThumb() {
+<span class="fc" id="L244">        return posterThumb;</span>
+    }
+
+	    public void setPosterThumb(String posterThumb) {
+<span class="fc" id="L248">	        this.posterThumb = posterThumb;</span>
+<span class="fc" id="L249">	    }</span>
+
+    public int getPassiveStatus() {
+<span class="fc" id="L252">        return passiveStatus;</span>
+    }
+
+	    public void setPassiveStatus(int passiveStatus) {
+<span class="fc" id="L256">	        this.passiveStatus = passiveStatus;</span>
+<span class="fc" id="L257">	    }</span>
+
+    public boolean getDvdOrder() {
+<span class="fc" id="L260">        return dvdOrder;</span>
+    }
+
+	    public void setDvdOrder(boolean dvdOrder) {
+<span class="nc" id="L264">	        this.dvdOrder = dvdOrder;</span>
+<span class="nc" id="L265">	    }</span>
+
+    public boolean saveToDB(SQLiteStore SQLS) {
+        try{
+<span class="fc bfc" id="L269" title="All 2 branches covered.">            for(int a=0; a &lt; this.actors.size(); a++){</span>
+<span class="fc" id="L270">                SQLS.execQuery(&quot;INSERT INTO actors (serieId, actor) &quot;+</span>
+<span class="fc" id="L271">                               &quot;VALUES ('&quot;+ this.id  +&quot;','&quot;+ this.actors.get(a) +&quot;');&quot;);</span>
+            }
+
+<span class="fc bfc" id="L274" title="All 2 branches covered.">            for(int g=0; g &lt; this.genres.size(); g++){</span>
+<span class="fc" id="L275">                SQLS.execQuery(&quot;INSERT INTO genres (serieId, genre) &quot;+</span>
+<span class="fc" id="L276">                               &quot;VALUES ('&quot;+ this.id  +&quot;','&quot;+ this.genres.get(g) +&quot;');&quot;);</span>
+            }
+
+<span class="fc bfc" id="L279" title="All 2 branches covered.">            for(int n=0; n &lt; this.nseasons.size(); n++){</span>
+<span class="fc" id="L280">                SQLS.execQuery(&quot;INSERT INTO serie_seasons (serieId, season) &quot;+</span>
+<span class="fc" id="L281">                               &quot;VALUES ('&quot;+ this.id  +&quot;','&quot;+ this.nseasons.get(n) +&quot;');&quot;);</span>
+            }
+
+<span class="pc bpc" id="L284" title="1 of 2 branches missed.">            if(TextUtils.isEmpty(this.overview))</span>
+<span class="nc" id="L285">              this.overview = &quot;&quot;;</span>
+<span class="pc bpc" id="L286" title="1 of 2 branches missed.">            if(TextUtils.isEmpty(this.serieName))</span>
+<span class="nc" id="L287">            	this.serieName = &quot;&quot;;</span>
+<span class="fc" id="L288">            SQLS.execQuery(&quot;INSERT INTO series (id, serieId, language, serieName, banner, overview, &quot;+</span>
+                           &quot;firstAired, imdbId, zap2ItId, airsDayOfWeek, airsTime, contentRating, &quot;+
+                           &quot;network, rating, runtime, status, fanart, lastUpdated, poster, &quot;+
+                           &quot;posterInCache, posterThumb, passiveStatus, dvdOrder) VALUES ('&quot;+ this.id +&quot;','&quot;+ this.serieId +&quot;','&quot;+ this.language
+<span class="fc" id="L292">                           +&quot;',&quot;+ DatabaseUtils.sqlEscapeString(this.serieName) +&quot;,'&quot;+ this.banner</span>
+<span class="fc" id="L293">                           +&quot;',&quot;+ DatabaseUtils.sqlEscapeString(this.overview) +&quot;,'&quot;+ this.firstAired</span>
+                           +&quot;','&quot;+ this.imdbId +&quot;','&quot;+ this.zap2ItId +&quot;','&quot;+ this.airsDayOfWeek +&quot;','&quot;+ this.airsTime
+                           +&quot;','&quot;+ this.contentRating +&quot;','&quot;+ this.network +&quot;','&quot;+ this.rating +&quot;','&quot;+ this.runtime
+                           +&quot;','&quot;+ this.status +&quot;','&quot;+ this.fanart +&quot;','&quot;+ this.lastUpdated +&quot;','&quot;+ this.poster
+                           +&quot;','&quot;+ this.posterInCache +&quot;','&quot;+ this.posterThumb +&quot;', '&quot;+ this.passiveStatus
+                           +&quot;','&quot;+ this.dvdOrder +&quot;');&quot;);
+
+<span class="fc bfc" id="L300" title="All 2 branches covered.">            for(int e=0; e &lt; this.episodes.size(); e++) {</span>
+<span class="fc" id="L301">                this.episodes.get(e).setSeriesId(this.id);</span>
+<span class="fc" id="L302">                this.episodes.get(e).saveToDB(SQLS);</span>
+            }
+<span class="fc" id="L304">            SQLS.updateShowStats(this.id);</span>
+<span class="nc" id="L305">        } catch(SQLiteException e){</span>
+<span class="nc" id="L306">            Log.e(&quot;DroidShows&quot;, e.getMessage());</span>
+<span class="nc" id="L307">            return false;</span>
+<span class="fc" id="L308">        }</span>
+
+<span class="fc" id="L310">        return true;</span>
+    }
+}
+</pre><div class="footer"><span class="right">Created with <a href="http://www.jacoco.org/jacoco">JaCoCo</a> 0.8.2.201808211720</span>Generated by the Android Gradle plugin 7.3.0</div></body></html>

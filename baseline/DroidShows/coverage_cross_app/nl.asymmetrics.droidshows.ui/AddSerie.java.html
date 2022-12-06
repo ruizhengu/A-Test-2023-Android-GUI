@@ -1,0 +1,421 @@
+<?xml version="1.0" encoding="UTF-8"?><!DOCTYPE html PUBLIC "-//W3C//DTD XHTML 1.0 Strict//EN" "http://www.w3.org/TR/xhtml1/DTD/xhtml1-strict.dtd"><html xmlns="http://www.w3.org/1999/xhtml" lang="en"><head><meta http-equiv="Content-Type" content="text/html;charset=UTF-8"/><link rel="stylesheet" href="../jacoco-resources/report.css" type="text/css"/><link rel="shortcut icon" href="../jacoco-resources/report.gif" type="image/gif"/><title>AddSerie.java</title><link rel="stylesheet" href="../jacoco-resources/prettify.css" type="text/css"/><script type="text/javascript" src="../jacoco-resources/prettify.js"></script></head><body onload="window['PR_TAB_WIDTH']=0;prettyPrint()"><div class="breadcrumb" id="breadcrumb"><span class="info"><a href="../jacoco-sessions.html" class="el_session">Sessions</a></span><a href="../index.html" class="el_report">debug</a> &gt; <a href="index.source.html" class="el_package">nl.asymmetrics.droidshows.ui</a> &gt; <span class="el_source">AddSerie.java</span></div><h1>AddSerie.java</h1><pre class="source lang-java linenums">package nl.asymmetrics.droidshows.ui;
+
+import java.io.File;
+import java.io.FileOutputStream;
+import java.io.IOException;
+import java.io.OutputStream;
+import java.net.MalformedURLException;
+import java.net.URL;
+import java.util.ArrayList;
+import java.util.List;
+
+import nl.asymmetrics.droidshows.DroidShows;
+import nl.asymmetrics.droidshows.R;
+import nl.asymmetrics.droidshows.thetvdb.TheTVDB;
+import nl.asymmetrics.droidshows.thetvdb.model.Serie;
+import nl.asymmetrics.droidshows.thetvdb.model.TVShowItem;
+import nl.asymmetrics.droidshows.utils.SQLiteStore;
+import nl.asymmetrics.droidshows.utils.SwipeDetect;
+import nl.asymmetrics.droidshows.utils.Utils;
+import android.app.AlertDialog;
+import android.app.ListActivity;
+import android.app.ProgressDialog;
+import android.app.SearchManager;
+import android.content.Context;
+import android.content.DialogInterface;
+import android.content.Intent;
+import android.graphics.Bitmap;
+import android.graphics.BitmapFactory;
+import android.graphics.drawable.Drawable;
+import android.os.AsyncTask;
+import android.os.Bundle;
+import android.os.Looper;
+import android.util.Log;
+import android.view.ContextMenu;
+import android.view.LayoutInflater;
+import android.view.Menu;
+import android.view.MenuItem;
+import android.view.View;
+import android.view.ViewGroup;
+import android.view.ContextMenu.ContextMenuInfo;
+import android.view.View.OnClickListener;
+import android.widget.ArrayAdapter;
+import android.widget.CheckedTextView;
+import android.widget.ListView;
+import android.widget.TextView;
+import android.widget.Toast;
+import android.widget.AdapterView.AdapterContextMenuInfo;
+
+import org.apache.commons.io.FileUtils;
+
+<span class="fc" id="L51">public class AddSerie extends ListActivity</span>
+{
+<span class="fc" id="L53">	private static List&lt;Serie&gt; search_series = null;</span>
+	private TheTVDB theTVDB;
+	private SeriesSearchAdapter seriessearch_adapter;
+	/* DIALOGS */
+<span class="fc" id="L57">	private ProgressDialog m_ProgressDialog = null;</span>
+	/* Option Menus */
+	private static final int ADD_SERIE_MENU_ITEM = Menu.FIRST;
+	/* Context Menus */
+	private static final int ADD_CONTEXT = Menu.FIRST;
+	private ListView listView;
+<span class="fc" id="L63">	private Utils utils = new Utils();</span>
+<span class="fc" id="L64">	static String searchQuery = &quot;&quot;;</span>
+	private SQLiteStore db;
+	private List&lt;String&gt; series;
+<span class="fc" id="L67">	private String langCode = DroidShows.langCode;</span>
+<span class="fc" id="L68">	private AsyncAddSerie addSerieTask = null;</span>
+	private Serie sToAdd;
+	
+	@Override
+	public void onCreate(Bundle savedInstanceState) {
+<span class="fc" id="L73">		super.onCreate(savedInstanceState);</span>
+<span class="fc" id="L74">		setContentView(R.layout.add_serie);</span>
+<span class="fc" id="L75">		db = SQLiteStore.getInstance(this);</span>
+<span class="fc" id="L76">		series = db.getSeries(2, false, null);	// 2 = archive and current shows, false = don't filter networks, null = ignore networks filter</span>
+<span class="fc" id="L77">		List&lt;Serie&gt; search_series = new ArrayList&lt;Serie&gt;();</span>
+<span class="fc" id="L78">		this.seriessearch_adapter = new SeriesSearchAdapter(this, R.layout.row_search_series, search_series);</span>
+<span class="fc" id="L79">		setListAdapter(seriessearch_adapter);</span>
+<span class="fc" id="L80">		((TextView) findViewById(R.id.change_language)).setText(getString(R.string.dialog_change_language) +&quot; (&quot;+ langCode +&quot;)&quot;);</span>
+<span class="fc" id="L81">		Intent intent = getIntent();</span>
+<span class="fc" id="L82">		getSearchResults(intent);</span>
+<span class="fc" id="L83">	}</span>
+
+	/* Options Menu */
+	@Override
+	public boolean onCreateOptionsMenu(Menu menu) {
+<span class="fc" id="L88">		menu.add(0, ADD_SERIE_MENU_ITEM, 0, getString(R.string.menu_add_serie)).setIcon(android.R.drawable.ic_menu_add);</span>
+<span class="fc" id="L89">		return super.onCreateOptionsMenu(menu);</span>
+	}
+
+	@Override
+	public boolean onOptionsItemSelected(MenuItem item) {
+<span class="nc bnc" id="L94" title="All 2 branches missed.">		switch (item.getItemId()) {</span>
+			case ADD_SERIE_MENU_ITEM :
+<span class="nc" id="L96">				onSearchRequested();</span>
+				break;
+		}
+<span class="nc" id="L99">		return super.onOptionsItemSelected(item);</span>
+	}
+
+	/* context menu */
+	public void onCreateContextMenu(ContextMenu menu, View v, ContextMenuInfo menuInfo) {
+<span class="nc" id="L104">		super.onCreateContextMenu(menu, v, menuInfo);</span>
+<span class="nc" id="L105">		menu.add(0, ADD_CONTEXT, 0, getString(R.string.menu_context_add_serie));</span>
+<span class="nc" id="L106">	}</span>
+
+	public boolean onContextItemSelected(MenuItem item) {
+<span class="nc" id="L109">		final AdapterContextMenuInfo info = (AdapterContextMenuInfo) item.getMenuInfo();</span>
+<span class="nc" id="L110">		final ListView serieList = getListView();</span>
+<span class="nc bnc" id="L111" title="All 2 branches missed.">		switch (item.getItemId()) {</span>
+			case ADD_CONTEXT :
+<span class="nc" id="L113">				final Serie tmpSerie = (Serie) serieList.getAdapter().getItem(info.position);</span>
+<span class="nc" id="L114">				addSerie(tmpSerie);</span>
+<span class="nc" id="L115">				return true;</span>
+			default :
+<span class="nc" id="L117">				return super.onContextItemSelected(item);</span>
+		}
+	}
+<span class="fc" id="L120">	private Runnable loadSearchSeries = new Runnable() {</span>
+		public void run() {
+<span class="fc" id="L122">			seriessearch_adapter.clear();</span>
+<span class="pc bpc" id="L123" title="2 of 4 branches missed.">			if (search_series != null &amp;&amp; search_series.size() &gt; 0) {</span>
+<span class="fc bfc" id="L124" title="All 2 branches covered.">				for (int i = 0; i &lt; search_series.size(); i++)</span>
+<span class="fc" id="L125">					seriessearch_adapter.add(search_series.get(i));</span>
+			}
+<span class="fc" id="L127">			seriessearch_adapter.notifyDataSetChanged();</span>
+<span class="fc" id="L128">			m_ProgressDialog.dismiss();</span>
+<span class="fc" id="L129">		}</span>
+	};
+
+	private void searchSeries(String searchQuery) {
+		try {
+<span class="fc" id="L134">			search_series = new ArrayList&lt;Serie&gt;();</span>
+<span class="fc" id="L135">			search_series = theTVDB.searchSeries(searchQuery, langCode);</span>
+<span class="pc bpc" id="L136" title="1 of 2 branches missed.">			if (search_series == null) {</span>
+<span class="nc" id="L137">				m_ProgressDialog.dismiss();</span>
+<span class="nc" id="L138">				Looper.prepare();</span>
+<span class="nc" id="L139">					Toast.makeText(getApplicationContext(), R.string.messages_thetvdb_con_error, Toast.LENGTH_LONG).show();</span>
+<span class="nc" id="L140">				Looper.loop();</span>
+			} else {
+<span class="fc" id="L142">				runOnUiThread(loadSearchSeries);</span>
+			}
+<span class="nc" id="L144">		} catch (Exception e) {</span>
+<span class="nc" id="L145">			Log.e(SQLiteStore.TAG, e.getMessage());</span>
+<span class="fc" id="L146">		}</span>
+<span class="fc" id="L147">	}</span>
+
+	private void Search() {
+<span class="fc" id="L150">		m_ProgressDialog = ProgressDialog.show(AddSerie.this, getString(R.string.messages_title_search_series), getString(R.string.messages_search_series), true, true);</span>
+<span class="fc" id="L151">		new Thread(new Runnable() {</span>
+			public void run() {
+<span class="fc" id="L153">				theTVDB = new TheTVDB(&quot;8AC675886350B3C3&quot;, DroidShows.useMirror);</span>
+<span class="fc" id="L154">				searchSeries(searchQuery);</span>
+<span class="fc" id="L155">			}</span>
+<span class="fc" id="L156">		}).start();</span>
+<span class="fc" id="L157">	}</span>
+
+	public void changeLanguage(View v) {
+<span class="nc" id="L160">		AlertDialog.Builder changeLang = new AlertDialog.Builder(this);</span>
+<span class="nc" id="L161">		changeLang.setTitle(R.string.dialog_change_language)</span>
+<span class="nc" id="L162">			.setItems(R.array.languages, new DialogInterface.OnClickListener() {</span>
+				public void onClick(DialogInterface dialog, int item) {
+<span class="nc" id="L164">					langCode = getResources().getStringArray(R.array.langcodes)[item];</span>
+<span class="nc" id="L165">					TextView changeLangB = (TextView) findViewById(R.id.change_language);</span>
+<span class="nc" id="L166">					changeLangB.setText(getString(R.string.dialog_change_language) +&quot; (&quot;+ langCode +&quot;)&quot;);</span>
+<span class="nc" id="L167">					doSearch();</span>
+<span class="nc" id="L168">				}</span>
+			})
+<span class="nc" id="L170">			.show();</span>
+<span class="nc" id="L171">	}</span>
+
+	@Override
+	protected void onSaveInstanceState(Bundle outState) {
+<span class="nc" id="L175">		m_ProgressDialog.dismiss();</span>
+<span class="nc" id="L176">		super.onSaveInstanceState(outState);</span>
+<span class="nc" id="L177">	}</span>
+	
+	private void addSerie(Serie s) {
+<span class="pc bpc" id="L180" title="3 of 4 branches missed.">		if (addSerieTask == null || addSerieTask.getStatus() != AsyncTask.Status.RUNNING) {</span>
+<span class="fc" id="L181">			addSerieTask = new AsyncAddSerie();</span>
+<span class="fc" id="L182">			addSerieTask.execute(s);</span>
+		} else {
+<span class="nc" id="L184">			Log.d(SQLiteStore.TAG, &quot;Still busy, not adding &quot;+ s.getSerieName());</span>
+<span class="nc" id="L185">			Toast.makeText(getApplicationContext(), R.string.messages_error_dbupdate, Toast.LENGTH_SHORT).show();</span>
+		}
+<span class="fc" id="L187">	}</span>
+
+<span class="fc" id="L189">	private class AsyncAddSerie extends AsyncTask&lt;Serie, Void, Boolean&gt; {</span>
+<span class="fc" id="L190">		String msg = null;</span>
+		
+		@Override
+		protected void onPreExecute() {
+<span class="fc" id="L194">			super.onPreExecute();</span>
+<span class="fc" id="L195">			m_ProgressDialog = ProgressDialog.show(AddSerie.this, getString(R.string.messages_title_adding_serie), getString(R.string.messages_adding_serie), true, false);</span>
+<span class="fc" id="L196">		}</span>
+
+		protected Boolean doInBackground(Serie... params) {
+<span class="fc" id="L199">			Serie s = params[0];</span>
+<span class="fc" id="L200">			Boolean success = false;</span>
+			
+<span class="fc" id="L202">			boolean alreadyExists = false;</span>
+<span class="pc bpc" id="L203" title="1 of 2 branches missed.">			for (String serieId : series)</span>
+<span class="nc bnc" id="L204" title="All 2 branches missed.">				if (serieId.equals(s.getId())) {</span>
+<span class="nc" id="L205">					alreadyExists = true;</span>
+<span class="nc" id="L206">					break;</span>
+				}
+<span class="pc bpc" id="L208" title="1 of 2 branches missed.">			if (alreadyExists) return false;</span>
+			
+<span class="fc" id="L210">			sToAdd = theTVDB.getSerie(s.getId(), s.getLanguage());</span>
+<span class="pc bpc" id="L211" title="1 of 2 branches missed.">			if (sToAdd == null) {</span>
+<span class="nc" id="L212">				msg = getString(R.string.messages_thetvdb_con_error);</span>
+			} else {
+<span class="fc" id="L214">				addPosterThumb();</span>
+				try {
+<span class="fc" id="L216">					Log.d(SQLiteStore.TAG, &quot;Adding &quot;+ sToAdd.getSerieName() +&quot;: saving TV show to database&quot;);</span>
+<span class="pc bpc" id="L217" title="1 of 2 branches missed.">					sToAdd.setPassiveStatus((DroidShows.showArchive == 1 ? 1 : 0));</span>
+<span class="fc" id="L218">					sToAdd.saveToDB(db);</span>
+<span class="fc" id="L219">					Log.d(SQLiteStore.TAG, &quot;Adding &quot;+ sToAdd.getSerieName() +&quot;: creating the TV show item&quot;);</span>
+<span class="fc" id="L220">					int nseasons = db.getSeasonCount(sToAdd.getId());</span>
+<span class="fc" id="L221">					SQLiteStore.NextEpisode nextEpisode = db.getNextEpisode(sToAdd.getId(), sToAdd.getDvdOrder());</span>
+<span class="fc" id="L222">					int unwatchedAired = db.getEpsUnwatchedAired(sToAdd.getId(), sToAdd.getDvdOrder());</span>
+<span class="fc" id="L223">					int unwatched = db.getEpsUnwatched(sToAdd.getId(), sToAdd.getDvdOrder());</span>
+<span class="pc bpc" id="L224" title="5 of 6 branches missed.">					String nextEpisodeStr = db.getNextEpisodeString(nextEpisode, DroidShows.showNextAiring &amp;&amp; 0 &lt; unwatchedAired &amp;&amp; unwatchedAired &lt; unwatched);</span>
+<span class="fc" id="L225">					Drawable d = Drawable.createFromPath(sToAdd.getPosterThumb());</span>
+<span class="fc" id="L226">					TVShowItem tvsi = new TVShowItem(sToAdd.getId(), sToAdd.getLanguage(), sToAdd.getPosterThumb(), d, sToAdd.getSerieName(), nseasons,</span>
+<span class="pc bpc" id="L227" title="1 of 2 branches missed.">						nextEpisodeStr, nextEpisode.firstAiredDate, unwatchedAired, unwatched, sToAdd.getPassiveStatus() == 1,</span>
+<span class="pc bpc" id="L228" title="1 of 2 branches missed.">						(sToAdd.getStatus() == null ? &quot;null&quot; : sToAdd.getStatus()), &quot;&quot;, sToAdd.getDvdOrder());</span>
+<span class="fc" id="L229">					DroidShows.series.add(tvsi);</span>
+<span class="fc" id="L230">					series.add(sToAdd.getId());</span>
+<span class="fc" id="L231">					runOnUiThread(DroidShows.updateListView);</span>
+<span class="fc" id="L232">					success = true;</span>
+<span class="nc" id="L233">				} catch (Exception e) {</span>
+<span class="nc" id="L234">					Log.e(SQLiteStore.TAG, &quot;Error adding &quot;+ sToAdd.getSerieName());</span>
+<span class="fc" id="L235">				}</span>
+<span class="pc bpc" id="L236" title="1 of 2 branches missed.">				if (success) {</span>
+<span class="fc" id="L237">					msg = String.format(getString(R.string.messages_series_success), sToAdd.getSerieName())</span>
+<span class="pc bpc" id="L238" title="1 of 2 branches missed.">						+ (DroidShows.showArchive == 1 ? &quot; (&quot;+ getString(R.string.messages_context_archived) +&quot;)&quot;: &quot;&quot;);</span>
+				}
+			}
+<span class="fc" id="L241">			sToAdd = null;</span>
+<span class="fc" id="L242">			return success;</span>
+		}
+		
+		private void addPosterThumb() {
+<span class="fc" id="L246">			Log.d(SQLiteStore.TAG, &quot;Adding &quot;+ sToAdd.getSerieName() +&quot;: getting the poster&quot;);</span>
+			// get the poster and save it in cache
+<span class="fc" id="L248">			String poster = sToAdd.getPoster();</span>
+<span class="fc" id="L249">			URL posterURL = null;</span>
+<span class="fc" id="L250">			String posterThumbPath = null;</span>
+			try {
+<span class="fc" id="L252">				posterURL = new URL(poster);</span>
+<span class="fc" id="L253">				posterThumbPath = getApplicationContext().getFilesDir().getAbsolutePath() +&quot;/thumbs&quot;+ posterURL.getFile().toString();</span>
+<span class="nc" id="L254">			} catch (MalformedURLException e) {</span>
+<span class="nc" id="L255">				Log.e(SQLiteStore.TAG, sToAdd.getSerieName() +&quot; doesn't have a poster URL&quot;);</span>
+<span class="nc" id="L256">				e.printStackTrace();</span>
+<span class="nc" id="L257">				return;</span>
+<span class="fc" id="L258">			}</span>
+<span class="fc" id="L259">			File posterThumbFile = new File(posterThumbPath);</span>
+			try {
+<span class="fc" id="L261">				FileUtils.copyURLToFile(posterURL, posterThumbFile);</span>
+<span class="nc" id="L262">			} catch (IOException e) {</span>
+<span class="nc" id="L263">				Log.e(SQLiteStore.TAG, &quot;Could not download poster: &quot;+ posterURL);</span>
+<span class="nc" id="L264">				e.printStackTrace();</span>
+<span class="nc" id="L265">				return;</span>
+<span class="fc" id="L266">			}</span>
+<span class="fc" id="L267">			Bitmap posterThumb = BitmapFactory.decodeFile(posterThumbPath);</span>
+<span class="pc bpc" id="L268" title="1 of 2 branches missed.">			if (posterThumb == null) {</span>
+<span class="nc" id="L269">				Log.e(SQLiteStore.TAG, &quot;Corrupt or unknown poster file type: &quot;+ posterThumbPath);</span>
+<span class="nc" id="L270">				return;</span>
+			}
+<span class="fc" id="L272">			int width = getWindowManager().getDefaultDisplay().getWidth();</span>
+<span class="fc" id="L273">			int height = getWindowManager().getDefaultDisplay().getHeight();</span>
+<span class="pc bpc" id="L274" title="1 of 2 branches missed.">			int newHeight = (int) ((height &gt; width ? height : width) * 0.265);</span>
+<span class="fc" id="L275">			int newWidth = (int) (1.0 * posterThumb.getWidth() / posterThumb.getHeight() * newHeight);</span>
+<span class="fc" id="L276">			Bitmap resizedBitmap = Bitmap.createScaledBitmap(posterThumb, newWidth, newHeight, true);</span>
+<span class="fc" id="L277">			OutputStream fOut = null;</span>
+			try {
+<span class="fc" id="L279">				fOut = new FileOutputStream(posterThumbFile, false);</span>
+<span class="fc" id="L280">				resizedBitmap.compress(Bitmap.CompressFormat.JPEG, 90, fOut);</span>
+<span class="fc" id="L281">				fOut.flush();</span>
+<span class="fc" id="L282">				fOut.close();</span>
+<span class="fc" id="L283">				sToAdd.setPosterInCache(&quot;true&quot;);</span>
+<span class="fc" id="L284">				sToAdd.setPosterThumb(posterThumbPath);</span>
+<span class="nc" id="L285">			} catch (IOException e) {</span>
+<span class="nc" id="L286">				e.printStackTrace();</span>
+<span class="fc" id="L287">			}</span>
+<span class="fc" id="L288">			posterThumb.recycle();</span>
+<span class="fc" id="L289">			resizedBitmap.recycle();</span>
+<span class="fc" id="L290">			System.gc();</span>
+<span class="fc" id="L291">			posterThumb = null;</span>
+<span class="fc" id="L292">			resizedBitmap = null;</span>
+<span class="fc" id="L293">		}</span>
+
+		@Override
+		protected void onPostExecute(Boolean result) {
+<span class="fc" id="L297">			super.onPostExecute(result);</span>
+<span class="fc" id="L298">			seriessearch_adapter.notifyDataSetChanged();</span>
+<span class="pc bpc" id="L299" title="1 of 2 branches missed.">			if (msg != null) Toast.makeText(getApplicationContext(), msg, Toast.LENGTH_LONG).show();</span>
+<span class="fc" id="L300">			m_ProgressDialog.dismiss();</span>
+<span class="fc" id="L301">		}</span>
+
+		@Override
+		protected void onCancelled(Boolean result) {
+<span class="nc" id="L305">			this.onPostExecute(result);</span>
+<span class="nc" id="L306">			super.onCancelled();</span>
+<span class="nc" id="L307">		}</span>
+	}
+	
+	// Guillaume: searches from within this activity were discarded
+	@Override
+	protected void onNewIntent(Intent intent) {
+<span class="fc" id="L313">		getSearchResults(intent);</span>
+<span class="fc" id="L314">	}</span>
+
+	private void getSearchResults(Intent intent) {
+<span class="pc bpc" id="L317" title="1 of 2 branches missed.">		if (Intent.ACTION_SEARCH.equals(intent.getAction())) {</span>
+<span class="fc" id="L318">			searchQuery = intent.getStringExtra(SearchManager.QUERY);</span>
+<span class="fc bfc" id="L319" title="All 2 branches covered.">			if (searchQuery.length() == 0) {</span>
+<span class="fc" id="L320">				onSearchRequested();</span>
+<span class="fc" id="L321">				return;</span>
+			}
+<span class="fc" id="L323">			TextView title = (TextView) findViewById(R.id.add_serie_title);</span>
+<span class="fc" id="L324">			title.setText(getString(R.string.dialog_search) + &quot; &quot; + searchQuery);</span>
+<span class="fc" id="L325">			doSearch();</span>
+		}
+<span class="fc" id="L327">		listView = getListView();</span>
+<span class="fc" id="L328">		listView.setOnTouchListener(new SwipeDetect());</span>
+<span class="fc" id="L329">		registerForContextMenu(getListView());</span>
+<span class="fc" id="L330">	}</span>
+	
+	private void doSearch() {
+<span class="pc bpc" id="L333" title="1 of 2 branches missed.">		if (utils.isNetworkAvailable(AddSerie.this))</span>
+<span class="fc" id="L334">			Search();</span>
+		else
+<span class="nc" id="L336">			Toast.makeText(getApplicationContext(), R.string.messages_no_internet, Toast.LENGTH_LONG).show();</span>
+<span class="fc" id="L337">	}</span>
+	
+	@Override
+	protected void onListItemClick(ListView l, View v, int position, long id) {
+<span class="fc" id="L341">		final Serie sToAdd = AddSerie.search_series.get(position);</span>
+<span class="fc" id="L342">		AlertDialog sOverview = new AlertDialog.Builder(this)</span>
+<span class="fc" id="L343">		.setIcon(R.drawable.icon)</span>
+<span class="fc" id="L344">		.setTitle(sToAdd.getSerieName())</span>
+<span class="fc" id="L345">		.setMessage(sToAdd.getOverview())</span>
+<span class="fc" id="L346">		.setPositiveButton(getString(R.string.menu_context_add_serie), new DialogInterface.OnClickListener() {</span>
+			public void onClick(DialogInterface dialog, int id) {
+<span class="fc" id="L348">				dialog.dismiss();</span>
+<span class="fc" id="L349">				addSerie(sToAdd);</span>
+<span class="fc" id="L350">			}</span>
+		})
+<span class="fc" id="L352">		.setNegativeButton(getString(R.string.dialog_cancel), new DialogInterface.OnClickListener() {</span>
+			public void onClick(DialogInterface dialog, int which) {
+<span class="nc" id="L354">				dialog.dismiss();</span>
+<span class="nc" id="L355">			}</span>
+		})
+<span class="fc" id="L357">		.show();</span>
+		
+<span class="pc bpc" id="L359" title="1 of 2 branches missed.">		for (String serieId : series)</span>
+<span class="nc bnc" id="L360" title="All 2 branches missed.">			if (serieId.equals(sToAdd.getId())) {</span>
+<span class="nc" id="L361">				sOverview.getButton(AlertDialog.BUTTON_POSITIVE).setEnabled(false);</span>
+<span class="nc" id="L362">				break;</span>
+			}
+<span class="fc" id="L364">	}</span>
+	
+	private class SeriesSearchAdapter extends ArrayAdapter&lt;Serie&gt;
+	{
+		private List&lt;Serie&gt; items;
+
+<span class="fc" id="L370">		public SeriesSearchAdapter(Context context, int textViewResourceId, List&lt;Serie&gt; series) {</span>
+<span class="fc" id="L371">			super(context, textViewResourceId, series);</span>
+<span class="fc" id="L372">			this.items = series;</span>
+<span class="fc" id="L373">		}</span>
+
+		public View getView(int position, View convertView, ViewGroup parent) {
+<span class="fc" id="L376">			View v = convertView;</span>
+<span class="fc bfc" id="L377" title="All 2 branches covered.">			if (v == null) {</span>
+<span class="fc" id="L378">				LayoutInflater vi = (LayoutInflater) getSystemService(Context.LAYOUT_INFLATER_SERVICE);</span>
+<span class="fc" id="L379">				v = vi.inflate(R.layout.row_search_series, parent, false);</span>
+			}
+<span class="fc" id="L381">			final Serie o = items.get(position);</span>
+<span class="pc bpc" id="L382" title="1 of 2 branches missed.">			if (o != null) {</span>
+<span class="fc" id="L383">				TextView sn = (TextView) v.findViewById(R.id.seriename);</span>
+<span class="fc" id="L384">				CheckedTextView ctv = (CheckedTextView) v.findViewById(R.id.addserieBtn);</span>
+<span class="pc bpc" id="L385" title="1 of 2 branches missed.">				if (sn != null) {</span>
+<span class="pc bpc" id="L386" title="1 of 2 branches missed.">					String lang = (o.getLanguage() == null ? &quot;&quot; : &quot; (&quot;+ o.getLanguage() +&quot;)&quot;);</span>
+<span class="fc" id="L387">					sn.setText(o.getSerieName() + lang);</span>
+				}
+<span class="pc bpc" id="L389" title="1 of 2 branches missed.">				if (ctv != null) {</span>
+<span class="fc" id="L390">					boolean alreadyExists = false;</span>
+<span class="fc bfc" id="L391" title="All 2 branches covered.">					for (String serieId : series) {</span>
+<span class="fc bfc" id="L392" title="All 2 branches covered.">						if (serieId.equals(o.getId())) {</span>
+<span class="fc" id="L393">							alreadyExists = true;</span>
+<span class="fc" id="L394">							break;</span>
+						}
+<span class="fc" id="L396">					}</span>
+<span class="fc bfc" id="L397" title="All 2 branches covered.">					if (alreadyExists) {</span>
+<span class="fc" id="L398">						ctv.setCheckMarkDrawable(getResources().getDrawable(R.drawable.star));</span>
+						// ctv.setVisibility(View.GONE);
+<span class="fc" id="L400">						ctv.setOnClickListener(new OnClickListener() {</span>
+							public void onClick(View v) {
+								// does nothing
+<span class="nc" id="L403">								return;</span>
+							}
+						});
+					} else {
+						// ctv.setVisibility(View.VISIBLE);
+<span class="fc" id="L408">						ctv.setCheckMarkDrawable(getResources().getDrawable(R.drawable.add));</span>
+<span class="fc" id="L409">						ctv.setOnClickListener(new OnClickListener() {</span>
+							public void onClick(View v) {
+<span class="nc" id="L411">								addSerie(o);</span>
+<span class="nc" id="L412">							}</span>
+						});
+					}
+				}
+			}
+<span class="fc" id="L417">			return v;</span>
+		}
+	}
+}
+</pre><div class="footer"><span class="right">Created with <a href="http://www.jacoco.org/jacoco">JaCoCo</a> 0.8.2.201808211720</span>Generated by the Android Gradle plugin 7.3.0</div></body></html>
