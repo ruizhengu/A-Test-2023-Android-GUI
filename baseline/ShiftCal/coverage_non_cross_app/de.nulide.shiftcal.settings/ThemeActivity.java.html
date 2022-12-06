@@ -1,0 +1,208 @@
+<?xml version="1.0" encoding="UTF-8"?><!DOCTYPE html PUBLIC "-//W3C//DTD XHTML 1.0 Strict//EN" "http://www.w3.org/TR/xhtml1/DTD/xhtml1-strict.dtd"><html xmlns="http://www.w3.org/1999/xhtml" lang="en"><head><meta http-equiv="Content-Type" content="text/html;charset=UTF-8"/><link rel="stylesheet" href="../jacoco-resources/report.css" type="text/css"/><link rel="shortcut icon" href="../jacoco-resources/report.gif" type="image/gif"/><title>ThemeActivity.java</title><link rel="stylesheet" href="../jacoco-resources/prettify.css" type="text/css"/><script type="text/javascript" src="../jacoco-resources/prettify.js"></script></head><body onload="window['PR_TAB_WIDTH']=0;prettyPrint()"><div class="breadcrumb" id="breadcrumb"><span class="info"><a href="../jacoco-sessions.html" class="el_session">Sessions</a></span><a href="../index.html" class="el_report">debugAndroidTest</a> &gt; <a href="index.source.html" class="el_package">de.nulide.shiftcal.settings</a> &gt; <span class="el_source">ThemeActivity.java</span></div><h1>ThemeActivity.java</h1><pre class="source lang-java linenums">package de.nulide.shiftcal.settings;
+
+import android.content.DialogInterface;
+import android.content.Intent;
+import android.graphics.Color;
+import android.graphics.drawable.ColorDrawable;
+import android.os.Build;
+import android.os.Bundle;
+import android.view.View;
+import android.widget.AdapterView;
+import android.widget.ArrayAdapter;
+import android.widget.Button;
+import android.widget.CompoundButton;
+import android.widget.Spinner;
+import android.widget.Switch;
+
+import androidx.appcompat.app.AppCompatActivity;
+import androidx.appcompat.app.AppCompatDelegate;
+import androidx.appcompat.widget.Toolbar;
+
+import com.flask.colorpicker.ColorPickerView;
+import com.flask.colorpicker.builder.ColorPickerClickListener;
+import com.flask.colorpicker.builder.ColorPickerDialogBuilder;
+
+import java.util.ArrayList;
+import java.util.List;
+
+import de.nulide.shiftcal.CalendarActivity;
+import de.nulide.shiftcal.R;
+import de.nulide.shiftcal.logic.io.IO;
+import de.nulide.shiftcal.logic.object.Settings;
+import de.nulide.shiftcal.tools.ColorHelper;
+
+<span class="nc" id="L34">public class ThemeActivity extends AppCompatActivity implements View.OnClickListener, ColorPickerClickListener, AdapterView.OnItemSelectedListener, CompoundButton.OnCheckedChangeListener {</span>
+
+    public final static int DARK_MODE_OFF = 0;
+    public final static int DARK_MODE_ON = 1;
+
+    private Switch swMaterialYou;
+    private Spinner sDarkMode;
+    private Spinner sFirstDayOfWeek;
+    private Button btnAppColor;
+    private Settings settings;
+
+    @Override
+    protected void onCreate(Bundle savedInstanceState) {
+<span class="nc" id="L47">        super.onCreate(savedInstanceState);</span>
+<span class="nc" id="L48">        setContentView(R.layout.activity_theme);</span>
+<span class="nc" id="L49">        Toolbar toolbar = findViewById(R.id.toolbar);</span>
+<span class="nc" id="L50">        setSupportActionBar(toolbar);</span>
+
+<span class="nc" id="L52">        settings  = IO.readSettings(getFilesDir());</span>
+<span class="nc" id="L53">        int color = ColorHelper.changeActivityColors(this, toolbar, settings);</span>
+
+
+<span class="nc" id="L56">        swMaterialYou = findViewById(R.id.swMaterialColor);</span>
+<span class="nc bnc" id="L57" title="All 2 branches missed.">        if(Build.VERSION.SDK_INT &lt; Build.VERSION_CODES.S) {</span>
+<span class="nc" id="L58">            swMaterialYou.setEnabled(false);</span>
+        }else{
+<span class="nc bnc" id="L60" title="All 2 branches missed.">            if(settings.isAvailable(Settings.SET_MATERIALYOUCOLOR)){</span>
+<span class="nc" id="L61">                swMaterialYou.setChecked(Boolean.getBoolean(settings.getSetting(Settings.SET_MATERIALYOUCOLOR)));</span>
+            }
+<span class="nc" id="L63">            swMaterialYou.setOnCheckedChangeListener(this);</span>
+        }
+
+
+<span class="nc" id="L67">        sDarkMode = findViewById(R.id.sDarkMode);</span>
+        ArrayAdapter&lt;String&gt; adapterDarkMode;
+        List&lt;String&gt; listDarkMode;
+<span class="nc" id="L70">        listDarkMode = new ArrayList&lt;String&gt;();</span>
+<span class="nc" id="L71">        listDarkMode.add(&quot;Off&quot;);</span>
+<span class="nc" id="L72">        listDarkMode.add(&quot;On&quot;);</span>
+<span class="nc" id="L73">        listDarkMode.add(&quot;System&quot;);</span>
+<span class="nc" id="L74">        adapterDarkMode = new ArrayAdapter&lt;String&gt;(getApplicationContext(),</span>
+                android.R.layout.simple_spinner_item, listDarkMode);
+<span class="nc" id="L76">        adapterDarkMode.setDropDownViewResource(android.R.layout.simple_spinner_dropdown_item);</span>
+<span class="nc" id="L77">        sDarkMode.setAdapter(adapterDarkMode);</span>
+<span class="nc bnc" id="L78" title="All 2 branches missed.">        if (!settings.isAvailable(Settings.SET_DARK_MODE)) {</span>
+<span class="nc" id="L79">            settings.setSetting(Settings.SET_DARK_MODE, String.valueOf(DARK_MODE_OFF));</span>
+        }
+<span class="nc" id="L81">        sDarkMode.setSelection(Integer.parseInt(settings.getSetting(Settings.SET_DARK_MODE)));</span>
+<span class="nc" id="L82">        sDarkMode.setOnItemSelectedListener(this);</span>
+
+<span class="nc" id="L84">        btnAppColor = findViewById(R.id.btnAppColor);</span>
+<span class="nc" id="L85">        btnAppColor.setOnClickListener(this);</span>
+
+<span class="nc" id="L87">        sFirstDayOfWeek = findViewById(R.id.sFirstDayOfWeek);</span>
+        ArrayAdapter&lt;String&gt; adapterFDoW;
+        List&lt;String&gt; listFDoW;
+<span class="nc" id="L90">        listFDoW = new ArrayList&lt;String&gt;();</span>
+<span class="nc" id="L91">        listFDoW.add(&quot;Sunday&quot;);</span>
+<span class="nc" id="L92">        listFDoW.add(&quot;Monday&quot;);</span>
+<span class="nc" id="L93">        listFDoW.add(&quot;Tuesday&quot;);</span>
+<span class="nc" id="L94">        listFDoW.add(&quot;Wednesday&quot;);</span>
+<span class="nc" id="L95">        listFDoW.add(&quot;Thursday&quot;);</span>
+<span class="nc" id="L96">        listFDoW.add(&quot;Friday&quot;);</span>
+<span class="nc" id="L97">        listFDoW.add(&quot;Saturday&quot;);</span>
+<span class="nc" id="L98">        adapterFDoW = new ArrayAdapter&lt;String&gt;(getApplicationContext(),</span>
+                android.R.layout.simple_spinner_item, listFDoW);
+<span class="nc" id="L100">        adapterFDoW.setDropDownViewResource(android.R.layout.simple_spinner_dropdown_item);</span>
+<span class="nc" id="L101">        sFirstDayOfWeek.setAdapter(adapterFDoW);</span>
+<span class="nc bnc" id="L102" title="All 2 branches missed.">        if (!settings.isAvailable(Settings.SET_START_OF_WEEK)) {</span>
+<span class="nc" id="L103">            settings.setSetting(Settings.SET_START_OF_WEEK, String.valueOf(1));</span>
+        }
+<span class="nc" id="L105">        sFirstDayOfWeek.setSelection(Integer.parseInt(settings.getSetting(Settings.SET_START_OF_WEEK)));</span>
+<span class="nc" id="L106">        sFirstDayOfWeek.setOnItemSelectedListener(this);</span>
+
+<span class="nc" id="L108">        updateColors(color);</span>
+<span class="nc" id="L109">    }</span>
+
+    @Override
+    public void onClick(View v) {
+<span class="nc bnc" id="L113" title="All 2 branches missed.">        if(v == btnAppColor){</span>
+<span class="nc" id="L114">            ColorPickerDialogBuilder</span>
+<span class="nc" id="L115">                    .with(this)</span>
+<span class="nc" id="L116">                    .setTitle(&quot;Choose color&quot;)</span>
+<span class="nc" id="L117">                    .initialColor(((ColorDrawable)btnAppColor.getBackground()).getColor())</span>
+<span class="nc" id="L118">                    .wheelType(ColorPickerView.WHEEL_TYPE.CIRCLE)</span>
+<span class="nc" id="L119">                    .density(12)</span>
+<span class="nc" id="L120">                    .setPositiveButton(&quot;ok&quot;,this)</span>
+<span class="nc" id="L121">                    .setNegativeButton(&quot;cancel&quot;, new DialogInterface.OnClickListener() {</span>
+                        @Override
+                        public void onClick(DialogInterface dialog, int which) {
+<span class="nc" id="L124">                        }</span>
+                    })
+<span class="nc" id="L126">                    .build()</span>
+<span class="nc" id="L127">                    .show();</span>
+        }
+<span class="nc" id="L129">    }</span>
+
+    @Override
+    public void onClick(DialogInterface d, int lastSelectedColor, Integer[] allColors) {
+<span class="nc" id="L133">        settings.setSetting(Settings.SET_COLOR, String.valueOf(lastSelectedColor));</span>
+<span class="nc" id="L134">        IO.writeSettings(getFilesDir(), this, settings);</span>
+<span class="nc" id="L135">        updateColors(lastSelectedColor);</span>
+<span class="nc" id="L136">        finish();</span>
+<span class="nc" id="L137">        Intent home = new Intent(this, CalendarActivity.class);</span>
+<span class="nc" id="L138">        startActivity(home);</span>
+<span class="nc" id="L139">    }</span>
+
+    public void updateColors(int color){
+<span class="nc" id="L142">        btnAppColor.setBackgroundColor(color);</span>
+<span class="nc" id="L143">        btnAppColor.setText(String.format(&quot;#%06X&quot;, (0xFFFFFF &amp; color)));</span>
+<span class="nc" id="L144">        int[] rgb = { Color.red(color), Color.green(color), Color.blue(color) };</span>
+<span class="nc" id="L145">        int brightness = (int) Math.sqrt(rgb[0] * rgb[0] * .241 + rgb[1]</span>
+                * rgb[1] * .691 + rgb[2] * rgb[2] * .068);
+
+<span class="nc bnc" id="L148" title="All 2 branches missed.">        if (brightness &gt;= 200) {</span>
+<span class="nc" id="L149">            btnAppColor.setTextColor(Color.BLACK);</span>
+        }else{
+<span class="nc" id="L151">            btnAppColor.setTextColor(Color.WHITE);</span>
+        }
+<span class="nc" id="L153">    }</span>
+
+    public static void setDarkMode(int i){
+<span class="nc bnc" id="L156" title="All 3 branches missed.">        switch(i){</span>
+            case DARK_MODE_ON:
+<span class="nc" id="L158">                AppCompatDelegate.setDefaultNightMode(AppCompatDelegate.MODE_NIGHT_YES);</span>
+<span class="nc" id="L159">                break;</span>
+            case DARK_MODE_OFF:
+<span class="nc" id="L161">                AppCompatDelegate.setDefaultNightMode(AppCompatDelegate.MODE_NIGHT_NO);</span>
+                break;
+        }
+<span class="nc" id="L164">    }</span>
+
+    @Override
+    public void onItemSelected(AdapterView&lt;?&gt; parent, View view, int position, long id) {
+<span class="nc bnc" id="L168" title="All 2 branches missed.">        if(parent == sDarkMode){</span>
+<span class="nc bnc" id="L169" title="All 2 branches missed.">            if(settings.isAvailable(Settings.SET_DARK_MODE)&amp;&amp;</span>
+<span class="nc bnc" id="L170" title="All 2 branches missed.">                    Integer.parseInt(settings.getSetting(Settings.SET_DARK_MODE)) == position){</span>
+
+            }else {
+<span class="nc" id="L173">                setDarkMode(position);</span>
+<span class="nc" id="L174">                settings.setSetting(Settings.SET_DARK_MODE, String.valueOf(position));</span>
+<span class="nc" id="L175">                IO.writeSettings(getFilesDir(), this, settings);</span>
+<span class="nc" id="L176">                finish();</span>
+<span class="nc" id="L177">                Intent home = new Intent(this, CalendarActivity.class);</span>
+<span class="nc" id="L178">                startActivity(home);</span>
+<span class="nc" id="L179">            }</span>
+<span class="nc bnc" id="L180" title="All 2 branches missed.">        }else if(parent == sFirstDayOfWeek){</span>
+<span class="nc bnc" id="L181" title="All 2 branches missed.">            if(settings.isAvailable(Settings.SET_START_OF_WEEK)&amp;&amp;</span>
+<span class="nc bnc" id="L182" title="All 2 branches missed.">                    Integer.parseInt(settings.getSetting(Settings.SET_START_OF_WEEK)) == position){</span>
+
+            }else {
+<span class="nc" id="L185">                settings.setSetting(Settings.SET_START_OF_WEEK, String.valueOf(position));</span>
+<span class="nc" id="L186">                IO.writeSettings(getFilesDir(), this, settings);</span>
+<span class="nc" id="L187">                finish();</span>
+<span class="nc" id="L188">                Intent home = new Intent(this, CalendarActivity.class);</span>
+<span class="nc" id="L189">                startActivity(home);</span>
+            }
+        }
+<span class="nc" id="L192">    }</span>
+
+    @Override
+    public void onNothingSelected(AdapterView&lt;?&gt; parent) {
+
+<span class="nc" id="L197">    }</span>
+
+    @Override
+    public void onCheckedChanged(CompoundButton compoundButton, boolean b) {
+<span class="nc" id="L201">        settings.setSetting(Settings.SET_MATERIALYOUCOLOR, ((Boolean)b).toString());</span>
+<span class="nc" id="L202">        IO.writeSettings(getFilesDir(), this, settings);</span>
+<span class="nc" id="L203">        finish();</span>
+<span class="nc" id="L204">        Intent home = new Intent(this, CalendarActivity.class);</span>
+<span class="nc" id="L205">        startActivity(home);</span>
+<span class="nc" id="L206">    }</span>
+}
+</pre><div class="footer"><span class="right">Created with <a href="http://www.jacoco.org/jacoco">JaCoCo</a> 0.8.2.201808211720</span>Generated by the Android Gradle plugin 3.5.4</div></body></html>

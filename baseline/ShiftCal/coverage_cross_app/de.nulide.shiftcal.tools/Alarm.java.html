@@ -1,0 +1,145 @@
+<?xml version="1.0" encoding="UTF-8"?><!DOCTYPE html PUBLIC "-//W3C//DTD XHTML 1.0 Strict//EN" "http://www.w3.org/TR/xhtml1/DTD/xhtml1-strict.dtd"><html xmlns="http://www.w3.org/1999/xhtml" lang="en"><head><meta http-equiv="Content-Type" content="text/html;charset=UTF-8"/><link rel="stylesheet" href="../jacoco-resources/report.css" type="text/css"/><link rel="shortcut icon" href="../jacoco-resources/report.gif" type="image/gif"/><title>Alarm.java</title><link rel="stylesheet" href="../jacoco-resources/prettify.css" type="text/css"/><script type="text/javascript" src="../jacoco-resources/prettify.js"></script></head><body onload="window['PR_TAB_WIDTH']=0;prettyPrint()"><div class="breadcrumb" id="breadcrumb"><span class="info"><a href="../jacoco-sessions.html" class="el_session">Sessions</a></span><a href="../index.html" class="el_report">debugAndroidTest</a> &gt; <a href="index.source.html" class="el_package">de.nulide.shiftcal.tools</a> &gt; <span class="el_source">Alarm.java</span></div><h1>Alarm.java</h1><pre class="source lang-java linenums">package de.nulide.shiftcal.tools;
+
+import android.app.AlarmManager;
+import android.app.PendingIntent;
+import android.content.Context;
+import android.content.Intent;
+import android.os.Build;
+
+import java.io.File;
+import java.util.Calendar;
+
+import de.nulide.shiftcal.logic.io.IO;
+import de.nulide.shiftcal.logic.object.Settings;
+import de.nulide.shiftcal.logic.object.Shift;
+import de.nulide.shiftcal.logic.object.ShiftCalendar;
+import de.nulide.shiftcal.logic.object.TimeFactory;
+import de.nulide.shiftcal.logic.object.WorkDay;
+import de.nulide.shiftcal.receiver.AlarmReceiver;
+import de.nulide.shiftcal.receiver.DNDReceiver;
+
+public class Alarm {
+
+    public static final String EXT_SHIFT = &quot;EXTRA_SHIFT_ID&quot;;
+    File f;
+    private Settings settings;
+
+<span class="fc" id="L27">    private int ALARM_ID = 35;</span>
+<span class="fc" id="L28">    private int DND_ID_START = 45;</span>
+<span class="fc" id="L29">    private int DND_ID_STOP = 46;</span>
+
+<span class="fc" id="L31">    private int TYPE_ALARM = 30;</span>
+<span class="fc" id="L32">    private int TYPE_DND = 40;</span>
+
+<span class="fc" id="L34">    public Alarm(File f) {</span>
+<span class="fc" id="L35">        this.f = f;</span>
+<span class="fc" id="L36">    }</span>
+
+    public void setAlarm(Context t) {
+<span class="fc" id="L39">        settings = IO.readSettings(f);</span>
+        try {
+<span class="pc bpc" id="L41" title="3 of 4 branches missed.">            if (settings.isAvailable(Settings.SET_ALARM_ON_OFF) &amp;&amp;settings.isAvailable(Settings.SET_ALARM_MINUTES)) {</span>
+<span class="nc bnc" id="L42" title="All 2 branches missed.">                if(new Boolean(settings.getSetting(Settings.SET_ALARM_ON_OFF))) {</span>
+<span class="nc" id="L43">                    Calendar today = Calendar.getInstance();</span>
+<span class="nc" id="L44">                    ShiftCalendar sc = IO.readShiftCal(f);</span>
+<span class="nc" id="L45">                    AlarmManager mgr = (AlarmManager) t.getSystemService(Context.ALARM_SERVICE);</span>
+<span class="nc" id="L46">                    Integer minutes = Integer.parseInt(settings.getSetting(Settings.SET_ALARM_MINUTES));</span>
+<span class="nc" id="L47">                    WorkDay nearest = sc.getUpcomingShift(TimeFactory.convertCalendarToCDateTime(today), true, minutes);</span>
+<span class="nc bnc" id="L48" title="All 2 branches missed.">                    if(nearest == null){</span>
+<span class="nc" id="L49">                        return;</span>
+                    }
+<span class="nc" id="L51">                    Calendar nearestCalendar = Calendar.getInstance();</span>
+<span class="nc" id="L52">                    nearestCalendar.set(nearest.getDate().getYear(), nearest.getDate().getMonth()-1, nearest.getDate().getDay(), sc.getShiftById(nearest.getShift()).getStartTime().getHour(), sc.getShiftById(nearest.getShift()).getStartTime().getMinute(), 0);</span>
+<span class="nc" id="L53">                    nearestCalendar.add(Calendar.MINUTE, -minutes);</span>
+
+<span class="nc" id="L55">                    Intent intent = new Intent(t, AlarmReceiver.class);</span>
+<span class="nc" id="L56">                    intent.putExtra(EXT_SHIFT, nearest.getShift());</span>
+<span class="nc" id="L57">                    PendingIntent pi = PendingIntent.getBroadcast(t, ALARM_ID, intent, PendingIntent.FLAG_UPDATE_CURRENT);</span>
+<span class="nc" id="L58">                    AlarmManager.AlarmClockInfo ac =</span>
+<span class="nc" id="L59">                            new AlarmManager.AlarmClockInfo(nearestCalendar.getTimeInMillis(),</span>
+                                        pi);
+<span class="nc" id="L61">                    mgr.setAlarmClock(ac, pi);</span>
+
+<span class="nc" id="L63">                }else{</span>
+<span class="nc" id="L64">                    removeAll(t, TYPE_ALARM);</span>
+                }
+            }
+<span class="nc" id="L67">        } catch (Exception e) {</span>
+<span class="nc" id="L68">            e.printStackTrace();</span>
+<span class="nc" id="L69">            settings.setSetting(Settings.SET_ALARM_MINUTES, &quot;0&quot;);</span>
+<span class="fc" id="L70">        }</span>
+<span class="fc" id="L71">    }</span>
+
+    public void setDNDAlarm(Context t){
+<span class="fc" id="L74">        settings = IO.readSettings(f);</span>
+<span class="pc bpc" id="L75" title="1 of 2 branches missed.">        if(settings.isAvailable(Settings.SET_DND)){</span>
+<span class="nc bnc" id="L76" title="All 2 branches missed.">            if(new Boolean(settings.getSetting(Settings.SET_DND))) {</span>
+<span class="nc" id="L77">                ShiftCalendar sc = IO.readShiftCal(f);</span>
+<span class="nc" id="L78">                Calendar today = Calendar.getInstance();</span>
+<span class="nc" id="L79">                WorkDay toDND = sc.getRunningShift(TimeFactory.convertCalendarToCDateTime(today));</span>
+
+<span class="nc bnc" id="L81" title="All 2 branches missed.">                if (toDND == null) {</span>
+<span class="nc" id="L82">                    toDND = sc.getUpcomingShift(TimeFactory.convertCalendarToCDateTime(today), false, 0);</span>
+<span class="nc bnc" id="L83" title="All 2 branches missed.">                    if (toDND == null) {</span>
+<span class="nc" id="L84">                        return;</span>
+                    }
+                }
+<span class="nc" id="L87">                Shift shiftTDND = sc.getShiftById(toDND.getShift());</span>
+<span class="nc" id="L88">                Calendar calStart = Calendar.getInstance();</span>
+<span class="nc" id="L89">                calStart.set(toDND.getDate().getYear(), toDND.getDate().getMonth() - 1, toDND.getDate().getDay(), shiftTDND.getStartTime().getHour(), shiftTDND.getStartTime().getMinute(), 0);</span>
+
+<span class="nc" id="L91">                Calendar calStop = Calendar.getInstance();</span>
+<span class="nc" id="L92">                calStop.set(toDND.getDate().getYear(), toDND.getDate().getMonth() - 1, toDND.getDate().getDay(), shiftTDND.getEndTime().getHour(), shiftTDND.getEndTime().getMinute(), 0);</span>
+
+<span class="nc bnc" id="L94" title="All 2 branches missed.">                if(shiftTDND.getStartTime().getHour() &gt; shiftTDND.getEndTime().getHour()){</span>
+<span class="nc" id="L95">                    calStop.add(Calendar.DAY_OF_MONTH, 1);</span>
+                }
+
+<span class="nc" id="L98">                AlarmManager mgr = (AlarmManager) t.getSystemService(Context.ALARM_SERVICE);</span>
+
+<span class="nc" id="L100">                Intent intentStart = new Intent(t, DNDReceiver.class);</span>
+<span class="nc" id="L101">                intentStart.putExtra(DNDReceiver.DND_START_STOP, DNDReceiver.START);</span>
+<span class="nc" id="L102">                PendingIntent pisa = PendingIntent.getBroadcast(t, DNDReceiver.DND_ID_START, intentStart, PendingIntent.FLAG_UPDATE_CURRENT);</span>
+<span class="nc" id="L103">                createSilentAlarm(pisa, intentStart, mgr, calStart);</span>
+
+<span class="nc" id="L105">                Intent intentStop = new Intent(t, DNDReceiver.class);</span>
+<span class="nc" id="L106">                intentStop.putExtra(DNDReceiver.DND_START_STOP, DNDReceiver.STOP);</span>
+<span class="nc" id="L107">                PendingIntent piso = PendingIntent.getBroadcast(t, DNDReceiver.DND_ID_STOP, intentStop, PendingIntent.FLAG_UPDATE_CURRENT);</span>
+<span class="nc" id="L108">                createSilentAlarm(piso, intentStop, mgr, calStop);</span>
+<span class="nc" id="L109">            }else{</span>
+<span class="nc" id="L110">                removeAll(t, TYPE_DND);</span>
+            }
+        }
+<span class="fc" id="L113">    }</span>
+
+    public static void createSilentAlarm(PendingIntent pi, Intent i, AlarmManager mgr, Calendar date){
+<span class="nc bnc" id="L116" title="All 2 branches missed.">        if (Build.VERSION.SDK_INT &gt;= Build.VERSION_CODES.M) {</span>
+<span class="nc" id="L117">            mgr.setExactAndAllowWhileIdle(AlarmManager.RTC_WAKEUP, date.getTimeInMillis(), pi);</span>
+        } else {
+<span class="nc" id="L119">                mgr.setExact(AlarmManager.RTC_WAKEUP, date.getTimeInMillis(), pi);</span>
+        }
+<span class="nc" id="L121">    }</span>
+
+    private void removeAll(Context t, int type) {
+<span class="nc" id="L124">        settings = IO.readSettings(f);</span>
+        try {
+<span class="nc" id="L126">            ShiftCalendar sc = IO.readShiftCal(f);</span>
+<span class="nc" id="L127">            AlarmManager mgr = (AlarmManager) t.getSystemService(Context.ALARM_SERVICE);</span>
+<span class="nc bnc" id="L128" title="All 2 branches missed.">            if(type == TYPE_ALARM) {</span>
+<span class="nc" id="L129">                Intent intent = new Intent(t, AlarmReceiver.class);</span>
+<span class="nc" id="L130">                PendingIntent pi = PendingIntent.getBroadcast(t, ALARM_ID, intent, 0);</span>
+<span class="nc" id="L131">                mgr.cancel(pi);</span>
+<span class="nc bnc" id="L132" title="All 2 branches missed.">            }else if(type == TYPE_DND) {</span>
+<span class="nc" id="L133">                Intent intent = new Intent(t, DNDReceiver.class);</span>
+<span class="nc" id="L134">                PendingIntent pi = PendingIntent.getBroadcast(t, DNDReceiver.DND_ID_START, intent, PendingIntent.FLAG_ONE_SHOT);</span>
+<span class="nc" id="L135">                mgr.cancel(pi);</span>
+<span class="nc" id="L136">                pi = PendingIntent.getBroadcast(t, DNDReceiver.DND_ID_STOP, intent, PendingIntent.FLAG_ONE_SHOT);</span>
+<span class="nc" id="L137">                mgr.cancel(pi);</span>
+            }
+<span class="nc" id="L139">        } catch (Exception e) {</span>
+<span class="nc" id="L140">            e.printStackTrace();</span>
+<span class="nc" id="L141">            settings.setSetting(Settings.SET_ALARM_MINUTES, &quot;0&quot;);</span>
+<span class="nc" id="L142">        }</span>
+<span class="nc" id="L143">    }</span>
+}
+</pre><div class="footer"><span class="right">Created with <a href="http://www.jacoco.org/jacoco">JaCoCo</a> 0.8.2.201808211720</span>Generated by the Android Gradle plugin 3.5.4</div></body></html>

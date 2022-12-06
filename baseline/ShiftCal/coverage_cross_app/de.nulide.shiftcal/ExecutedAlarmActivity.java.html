@@ -1,0 +1,105 @@
+<?xml version="1.0" encoding="UTF-8"?><!DOCTYPE html PUBLIC "-//W3C//DTD XHTML 1.0 Strict//EN" "http://www.w3.org/TR/xhtml1/DTD/xhtml1-strict.dtd"><html xmlns="http://www.w3.org/1999/xhtml" lang="en"><head><meta http-equiv="Content-Type" content="text/html;charset=UTF-8"/><link rel="stylesheet" href="../jacoco-resources/report.css" type="text/css"/><link rel="shortcut icon" href="../jacoco-resources/report.gif" type="image/gif"/><title>ExecutedAlarmActivity.java</title><link rel="stylesheet" href="../jacoco-resources/prettify.css" type="text/css"/><script type="text/javascript" src="../jacoco-resources/prettify.js"></script></head><body onload="window['PR_TAB_WIDTH']=0;prettyPrint()"><div class="breadcrumb" id="breadcrumb"><span class="info"><a href="../jacoco-sessions.html" class="el_session">Sessions</a></span><a href="../index.html" class="el_report">debugAndroidTest</a> &gt; <a href="index.source.html" class="el_package">de.nulide.shiftcal</a> &gt; <span class="el_source">ExecutedAlarmActivity.java</span></div><h1>ExecutedAlarmActivity.java</h1><pre class="source lang-java linenums">package de.nulide.shiftcal;
+
+import android.content.Context;
+import android.content.res.ColorStateList;
+import android.media.AudioAttributes;
+import android.media.Ringtone;
+import android.media.RingtoneManager;
+import android.net.Uri;
+import android.os.Build;
+import android.os.Bundle;
+import android.os.PowerManager;
+import android.view.View;
+import android.view.WindowManager;
+import android.widget.TextView;
+
+import androidx.appcompat.app.AppCompatActivity;
+import androidx.appcompat.widget.Toolbar;
+
+import com.google.android.material.floatingactionbutton.FloatingActionButton;
+
+import java.util.Calendar;
+
+import de.nulide.shiftcal.logic.io.IO;
+import de.nulide.shiftcal.logic.object.Settings;
+import de.nulide.shiftcal.logic.object.Shift;
+import de.nulide.shiftcal.logic.object.ShiftCalendar;
+import de.nulide.shiftcal.tools.Alarm;
+import de.nulide.shiftcal.tools.ColorHelper;
+
+<span class="nc" id="L30">public class ExecutedAlarmActivity extends AppCompatActivity implements View.OnClickListener {</span>
+
+    private Ringtone ringtone;
+
+    private TextView tvShiftN;
+    private TextView tvShiftA;
+    private FloatingActionButton btnEnd;
+
+    private PowerManager powerManager;
+
+    @Override
+    protected void onCreate(Bundle savedInstanceState) {
+<span class="nc" id="L42">        super.onCreate(savedInstanceState);</span>
+<span class="nc" id="L43">        getWindow().addFlags(WindowManager.LayoutParams.FLAG_SHOW_WHEN_LOCKED</span>
+                | WindowManager.LayoutParams.FLAG_DISMISS_KEYGUARD
+                | WindowManager.LayoutParams.FLAG_KEEP_SCREEN_ON
+                | WindowManager.LayoutParams.FLAG_FULLSCREEN
+                | WindowManager.LayoutParams.FLAG_TURN_SCREEN_ON);
+<span class="nc" id="L48">        setContentView(R.layout.activity_executed_alarm);</span>
+<span class="nc" id="L49">        Toolbar toolbar = findViewById(R.id.toolbar);</span>
+<span class="nc" id="L50">        setSupportActionBar(toolbar);</span>
+<span class="nc" id="L51">        Settings settings  = IO.readSettings(getFilesDir());</span>
+<span class="nc" id="L52">        int color = ColorHelper.changeActivityColors(this, toolbar, settings);</span>
+<span class="nc" id="L53">        WindowManager.LayoutParams params = getWindow().getAttributes();</span>
+<span class="nc" id="L54">        params.screenBrightness = 1;</span>
+<span class="nc" id="L55">        getWindow().setAttributes(params);</span>
+<span class="nc" id="L56">        getWindow().addFlags(WindowManager.LayoutParams.FLAGS_CHANGED);</span>
+<span class="nc" id="L57">        powerManager = (PowerManager) getSystemService(Context.POWER_SERVICE);</span>
+
+<span class="nc" id="L59">        Alarm a = new Alarm(getFilesDir());</span>
+<span class="nc" id="L60">        a.setAlarm(this);</span>
+<span class="nc" id="L61">        Calendar cal = Calendar.getInstance();</span>
+<span class="nc" id="L62">        ShiftCalendar sc = IO.readShiftCal(getFilesDir());</span>
+<span class="nc" id="L63">        Bundle bundle = getIntent().getExtras();</span>
+<span class="nc" id="L64">        Shift s = sc.getShiftById(bundle.getInt(Alarm.EXT_SHIFT));</span>
+<span class="nc" id="L65">        String clockTime = cal.getTime().getHours() + &quot;:&quot;;</span>
+<span class="nc bnc" id="L66" title="All 2 branches missed.">        if (String.valueOf(cal.getTime().getMinutes()).length() &gt; 1) {</span>
+<span class="nc" id="L67">            clockTime += cal.getTime().getMinutes();</span>
+        } else {
+<span class="nc" id="L69">            clockTime += &quot;0&quot; + cal.getTime().getMinutes();</span>
+        }
+<span class="nc" id="L71">        tvShiftN = findViewById(R.id.EAShift);</span>
+<span class="nc" id="L72">        tvShiftN.setText(s.getName());</span>
+<span class="nc" id="L73">        tvShiftN.setTextColor(s.getColor());</span>
+<span class="nc" id="L74">        tvShiftA = findViewById(R.id.EAShiftA);</span>
+<span class="nc" id="L75">        tvShiftA.setText(s.getShort_name());</span>
+<span class="nc" id="L76">        tvShiftA.setTextColor(s.getColor());</span>
+<span class="nc" id="L77">        btnEnd = findViewById(R.id.btnEndAlarm);</span>
+<span class="nc" id="L78">        btnEnd.setBackgroundTintList(ColorStateList.valueOf(color));</span>
+<span class="nc" id="L79">        btnEnd.setOnClickListener(this);</span>
+
+<span class="nc" id="L81">        Uri uri = Uri.parse(settings.getSetting(Settings.SET_ALARM_TONE));</span>
+<span class="nc" id="L82">        ringtone = RingtoneManager.getRingtone(this, uri);</span>
+<span class="nc" id="L83">        ringtone.setStreamType(RingtoneManager.TYPE_ALARM);</span>
+<span class="nc" id="L84">        AudioAttributes aa = new AudioAttributes.Builder()</span>
+<span class="nc" id="L85">                    .setUsage(AudioAttributes.USAGE_ALARM)</span>
+<span class="nc" id="L86">                    .setContentType(AudioAttributes.CONTENT_TYPE_UNKNOWN)</span>
+<span class="nc" id="L87">                    .setFlags(AudioAttributes.FLAG_AUDIBILITY_ENFORCED)</span>
+<span class="nc" id="L88">                    .build();</span>
+<span class="nc" id="L89">            ringtone.setAudioAttributes(aa);</span>
+
+<span class="nc" id="L91">        ringtone.play();</span>
+<span class="nc" id="L92">    }</span>
+
+    @Override
+    protected void onPause() {
+<span class="nc" id="L96">        super.onPause();</span>
+<span class="nc" id="L97">    }</span>
+
+    @Override
+    public void onClick(View v) {
+<span class="nc" id="L101">        ringtone.stop();</span>
+<span class="nc" id="L102">        finish();</span>
+<span class="nc" id="L103">    }</span>
+}
+</pre><div class="footer"><span class="right">Created with <a href="http://www.jacoco.org/jacoco">JaCoCo</a> 0.8.2.201808211720</span>Generated by the Android Gradle plugin 3.5.4</div></body></html>

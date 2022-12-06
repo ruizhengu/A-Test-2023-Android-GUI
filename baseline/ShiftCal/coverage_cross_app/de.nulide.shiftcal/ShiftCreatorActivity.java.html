@@ -1,0 +1,222 @@
+<?xml version="1.0" encoding="UTF-8"?><!DOCTYPE html PUBLIC "-//W3C//DTD XHTML 1.0 Strict//EN" "http://www.w3.org/TR/xhtml1/DTD/xhtml1-strict.dtd"><html xmlns="http://www.w3.org/1999/xhtml" lang="en"><head><meta http-equiv="Content-Type" content="text/html;charset=UTF-8"/><link rel="stylesheet" href="../jacoco-resources/report.css" type="text/css"/><link rel="shortcut icon" href="../jacoco-resources/report.gif" type="image/gif"/><title>ShiftCreatorActivity.java</title><link rel="stylesheet" href="../jacoco-resources/prettify.css" type="text/css"/><script type="text/javascript" src="../jacoco-resources/prettify.js"></script></head><body onload="window['PR_TAB_WIDTH']=0;prettyPrint()"><div class="breadcrumb" id="breadcrumb"><span class="info"><a href="../jacoco-sessions.html" class="el_session">Sessions</a></span><a href="../index.html" class="el_report">debugAndroidTest</a> &gt; <a href="index.source.html" class="el_package">de.nulide.shiftcal</a> &gt; <span class="el_source">ShiftCreatorActivity.java</span></div><h1>ShiftCreatorActivity.java</h1><pre class="source lang-java linenums">package de.nulide.shiftcal;
+
+import android.app.TimePickerDialog;
+import android.content.DialogInterface;
+import android.content.res.ColorStateList;
+import android.graphics.Color;
+import android.graphics.drawable.ColorDrawable;
+import android.os.Bundle;
+import android.util.Log;
+import android.view.View;
+import android.widget.ArrayAdapter;
+import android.widget.Button;
+import android.widget.EditText;
+import android.widget.Spinner;
+import android.widget.Switch;
+import android.widget.TimePicker;
+
+import androidx.appcompat.app.AppCompatActivity;
+import androidx.appcompat.widget.Toolbar;
+
+import com.flask.colorpicker.ColorPickerView;
+import com.flask.colorpicker.builder.ColorPickerClickListener;
+import com.flask.colorpicker.builder.ColorPickerDialogBuilder;
+import com.google.android.material.floatingactionbutton.FloatingActionButton;
+import com.google.android.material.snackbar.Snackbar;
+
+import java.util.ArrayList;
+
+import de.nulide.shiftcal.logic.io.IO;
+import de.nulide.shiftcal.logic.object.Employer;
+import de.nulide.shiftcal.logic.object.Employment;
+import de.nulide.shiftcal.logic.object.Settings;
+import de.nulide.shiftcal.logic.object.Shift;
+import de.nulide.shiftcal.logic.object.ShiftCalendar;
+import de.nulide.shiftcal.logic.object.ShiftTime;
+import de.nulide.shiftcal.tools.ColorHelper;
+
+<span class="fc" id="L38">public class ShiftCreatorActivity extends AppCompatActivity implements View.OnClickListener, TimePickerDialog.OnTimeSetListener {</span>
+
+    private Employment em;
+    private ArrayList&lt;Employer&gt; employers;
+<span class="fc" id="L42">    private ArrayList&lt;String&gt; employerOption = new ArrayList&lt;String&gt;();</span>
+    private ShiftCalendar sc;
+<span class="fc" id="L44">    private int toEditShift = -1;</span>
+    private ShiftTime stStart;
+    private ShiftTime stEnd;
+<span class="fc" id="L47">    private boolean setStartTime = true;</span>
+
+    private FloatingActionButton fabDoneShift;
+    private EditText etViewName;
+    private EditText etViewSName;
+    private Spinner spinnerEmployer;
+    private Button btnStartTime;
+    private Button btnEndTime;
+    private Button btnCP;
+    private Switch swAlarmForShift;
+    private TimePickerDialog timePickerST;
+    private TimePickerDialog timePickerET;
+
+    @Override
+    protected void onCreate(Bundle savedInstanceState) {
+<span class="fc" id="L62">        super.onCreate(savedInstanceState);</span>
+<span class="fc" id="L63">        setContentView(R.layout.activity_shift_creator);</span>
+<span class="fc" id="L64">        Toolbar toolbar = findViewById(R.id.toolbar);</span>
+<span class="fc" id="L65">        setSupportActionBar(toolbar);</span>
+
+<span class="fc" id="L67">        Settings settings = IO.readSettings(getFilesDir());</span>
+<span class="fc" id="L68">        int color = ColorHelper.changeActivityColors(this, toolbar, settings);</span>
+
+<span class="fc" id="L70">        Bundle bundle = getIntent().getExtras();</span>
+<span class="fc" id="L71">        toEditShift = bundle.getInt(&quot;toedit&quot;);</span>
+
+<span class="fc" id="L73">        sc = IO.readShiftCal(getFilesDir());</span>
+<span class="fc" id="L74">        stStart = new ShiftTime(0, 0);</span>
+<span class="fc" id="L75">        stEnd = new ShiftTime(0, 0);</span>
+
+<span class="fc" id="L77">        em = IO.readEmployment(getFilesDir());</span>
+<span class="fc" id="L78">        employers = new ArrayList&lt;&gt;(em.getEmployerList());</span>
+<span class="fc bfc" id="L79" title="All 2 branches covered.">        for (int i = 0; i &lt; employers.size(); i++) {</span>
+<span class="fc" id="L80">            employerOption.add(employers.get(i).getName());</span>
+        }
+
+<span class="fc" id="L83">        fabDoneShift = findViewById(R.id.fabDoneShift);</span>
+<span class="fc" id="L84">        fabDoneShift.setOnClickListener(this);</span>
+<span class="fc" id="L85">        fabDoneShift.setBackgroundTintList(ColorStateList.valueOf(color));</span>
+<span class="fc" id="L86">        spinnerEmployer = findViewById(R.id.spinner);</span>
+<span class="fc" id="L87">        ArrayAdapter&lt;String&gt; adapter = new ArrayAdapter&lt;String&gt;(this, android.R.layout.simple_spinner_item, employerOption);</span>
+<span class="fc" id="L88">        adapter.setDropDownViewResource(android.R.layout.simple_spinner_dropdown_item);</span>
+<span class="fc" id="L89">        spinnerEmployer.setAdapter(adapter);</span>
+<span class="fc" id="L90">        etViewName = findViewById(R.id.scEditTextName);</span>
+<span class="fc" id="L91">        etViewSName = findViewById(R.id.scEditTextSName);</span>
+<span class="fc" id="L92">        btnStartTime = findViewById(R.id.btnStartTime);</span>
+<span class="fc" id="L93">        btnStartTime.setOnClickListener(this);</span>
+<span class="fc" id="L94">        btnEndTime = findViewById(R.id.btnEndTime);</span>
+<span class="fc" id="L95">        btnEndTime.setOnClickListener(this);</span>
+<span class="fc" id="L96">        btnCP = findViewById(R.id.colorPickerBtn);</span>
+<span class="fc" id="L97">        btnCP.setOnClickListener(this);</span>
+<span class="fc" id="L98">        swAlarmForShift = findViewById(R.id.swAlarmForShift);</span>
+<span class="fc" id="L99">        swAlarmForShift.setChecked(true);</span>
+<span class="fc" id="L100">        swAlarmForShift.setEnabled(false);</span>
+<span class="pc bpc" id="L101" title="1 of 2 branches missed.">        if (settings.isAvailable(Settings.SET_ALARM_ON_OFF)) {</span>
+<span class="nc bnc" id="L102" title="All 2 branches missed.">            if (new Boolean(settings.getSetting(Settings.SET_ALARM_ON_OFF))) {</span>
+<span class="nc" id="L103">                swAlarmForShift.setEnabled(true);</span>
+            }
+        }
+
+<span class="fc" id="L107">        updateButtonColors(color);</span>
+
+<span class="pc bpc" id="L109" title="1 of 2 branches missed.">        if (toEditShift != -1) {</span>
+<span class="nc" id="L110">            etViewName.setText(sc.getShiftById(toEditShift).getName());</span>
+<span class="nc" id="L111">            etViewSName.setText(sc.getShiftById(toEditShift).getShort_name());</span>
+<span class="nc" id="L112">            spinnerEmployer.setSelection(sc.getShiftById(toEditShift).getEmployerIndex());</span>
+<span class="nc" id="L113">            stStart = sc.getShiftById(toEditShift).getStartTime();</span>
+<span class="nc" id="L114">            stEnd = sc.getShiftById(toEditShift).getEndTime();</span>
+<span class="nc" id="L115">            swAlarmForShift.setChecked(sc.getShiftById(toEditShift).isToAlarm());</span>
+<span class="nc" id="L116">            updateButtonColors(sc.getShiftById(toEditShift).getColor());</span>
+<span class="nc" id="L117">            updateTime();</span>
+        }
+<span class="fc" id="L119">    }</span>
+
+    @Override
+    public void onClick(View view) {
+<span class="fc bfc" id="L123" title="All 2 branches covered.">        if (view == fabDoneShift) {</span>
+<span class="fc" id="L124">            String name = etViewName.getText().toString();</span>
+<span class="fc" id="L125">            String sname = etViewSName.getText().toString();</span>
+<span class="fc" id="L126">            int employerIndex = (int) spinnerEmployer.getSelectedItemId();</span>
+<span class="pc bpc" id="L127" title="2 of 4 branches missed.">            if (!name.isEmpty() &amp;&amp; !sname.isEmpty()) {</span>
+                Shift nS;
+<span class="pc bpc" id="L129" title="1 of 2 branches missed.">                if (swAlarmForShift.isEnabled()) {</span>
+<span class="nc" id="L130">                    nS = new Shift(name, sname, employerIndex, sc.getNextShiftId(), stStart, stEnd, ((ColorDrawable) btnCP.getBackground()).getColor(), swAlarmForShift.isChecked(), false);</span>
+                } else {
+<span class="fc" id="L132">                    nS = new Shift(name, sname, employerIndex, sc.getNextShiftId(), stStart, stEnd, ((ColorDrawable) btnCP.getBackground()).getColor(), true, false);</span>
+                }
+<span class="pc bpc" id="L134" title="1 of 2 branches missed.">                if (toEditShift != -1) {</span>
+<span class="nc" id="L135">                    nS.setId(sc.getShiftById(toEditShift).getId());</span>
+<span class="nc" id="L136">                    sc.setShift(toEditShift, nS);</span>
+                } else {
+<span class="fc" id="L138">                    sc.addShift(nS);</span>
+                }
+<span class="fc" id="L140">                IO.writeShiftCal(getFilesDir(), this, sc);</span>
+<span class="fc" id="L141">                this.finish();</span>
+<span class="fc" id="L142">            } else {</span>
+<span class="nc" id="L143">                Snackbar.make(view, &quot;Error: Not enough Information!&quot;, Snackbar.LENGTH_LONG)</span>
+<span class="nc" id="L144">                        .setAction(&quot;Action&quot;, null).show();</span>
+            }
+<span class="fc bfc" id="L146" title="All 2 branches covered.">        } else if (view == btnStartTime) {</span>
+<span class="fc" id="L147">            setStartTime = true;</span>
+<span class="pc bpc" id="L148" title="1 of 2 branches missed.">            if (toEditShift != -1) {</span>
+<span class="nc" id="L149">                timePickerST = new TimePickerDialog(this, this, sc.getShiftById(toEditShift).getStartTime().getHour(), sc.getShiftById(toEditShift).getStartTime().getMinute(), true);</span>
+            } else {
+<span class="fc" id="L151">                timePickerST = new TimePickerDialog(this, this, 12, 0, true);</span>
+            }
+<span class="fc" id="L153">            timePickerST.show();</span>
+<span class="pc bpc" id="L154" title="1 of 2 branches missed.">        } else if (view == btnEndTime) {</span>
+<span class="fc" id="L155">            setStartTime = false;</span>
+<span class="pc bpc" id="L156" title="1 of 2 branches missed.">            if (toEditShift != -1) {</span>
+<span class="nc" id="L157">                timePickerET = new TimePickerDialog(this, this, sc.getShiftById(toEditShift).getEndTime().getHour(), sc.getShiftById(toEditShift).getEndTime().getMinute(), true);</span>
+            } else {
+<span class="fc" id="L159">                timePickerET = new TimePickerDialog(this, this, 12, 0, true);</span>
+            }
+<span class="fc" id="L161">            timePickerET.show();</span>
+        } else {
+<span class="nc" id="L163">            ColorPickerDialogBuilder</span>
+<span class="nc" id="L164">                    .with(this)</span>
+<span class="nc" id="L165">                    .setTitle(&quot;Choose color&quot;)</span>
+<span class="nc" id="L166">                    .initialColor(((ColorDrawable) btnCP.getBackground()).getColor())</span>
+<span class="nc" id="L167">                    .wheelType(ColorPickerView.WHEEL_TYPE.CIRCLE)</span>
+<span class="nc" id="L168">                    .density(12)</span>
+<span class="nc" id="L169">                    .setPositiveButton(&quot;ok&quot;, new ColorPickerClickListener() {</span>
+                        @Override
+                        public void onClick(DialogInterface d, int lastSelectedColor, Integer[] allColors) {
+<span class="nc" id="L172">                            updateButtonColors(lastSelectedColor);</span>
+<span class="nc" id="L173">                        }</span>
+                    })
+<span class="nc" id="L175">                    .setNegativeButton(&quot;cancel&quot;, new DialogInterface.OnClickListener() {</span>
+                        @Override
+                        public void onClick(DialogInterface dialog, int which) {
+<span class="nc" id="L178">                        }</span>
+                    })
+<span class="nc" id="L180">                    .build()</span>
+<span class="nc" id="L181">                    .show();</span>
+        }
+<span class="fc" id="L183">    }</span>
+
+    @Override
+    public void onTimeSet(TimePicker timePicker, int hour, int minute) {
+<span class="fc bfc" id="L187" title="All 2 branches covered.">        if (setStartTime) {</span>
+<span class="fc" id="L188">            stStart = new ShiftTime(hour, minute);</span>
+        } else {
+<span class="fc" id="L190">            stEnd = new ShiftTime(hour, minute);</span>
+        }
+<span class="fc" id="L192">        updateTime();</span>
+<span class="fc" id="L193">    }</span>
+
+    public void updateTime() {
+<span class="fc" id="L196">        btnStartTime.setText(stStart.toString());</span>
+<span class="fc" id="L197">        btnEndTime.setText(stEnd.toString());</span>
+<span class="fc" id="L198">    }</span>
+
+    public void updateButtonColors(int color) {
+<span class="fc" id="L201">        btnStartTime.setBackgroundColor(color);</span>
+<span class="fc" id="L202">        btnEndTime.setBackgroundColor(color);</span>
+<span class="fc" id="L203">        btnCP.setBackgroundColor(color);</span>
+<span class="fc" id="L204">        btnCP.setText(String.format(&quot;#%06X&quot;, (0xFFFFFF &amp; color)));</span>
+
+
+<span class="fc" id="L207">        int[] rgb = {Color.red(color), Color.green(color), Color.blue(color)};</span>
+<span class="fc" id="L208">        int brightness = (int) Math.sqrt(rgb[0] * rgb[0] * .241 + rgb[1]</span>
+                * rgb[1] * .691 + rgb[2] * rgb[2] * .068);
+
+<span class="pc bpc" id="L211" title="1 of 2 branches missed.">        if (brightness &gt;= 200) {</span>
+<span class="nc" id="L212">            btnCP.setTextColor(Color.BLACK);</span>
+<span class="nc" id="L213">            btnStartTime.setTextColor(Color.BLACK);</span>
+<span class="nc" id="L214">            btnEndTime.setTextColor(Color.BLACK);</span>
+        } else {
+<span class="fc" id="L216">            btnCP.setTextColor(Color.WHITE);</span>
+<span class="fc" id="L217">            btnStartTime.setTextColor(Color.WHITE);</span>
+<span class="fc" id="L218">            btnEndTime.setTextColor(Color.WHITE);</span>
+        }
+<span class="fc" id="L220">    }</span>
+}
+</pre><div class="footer"><span class="right">Created with <a href="http://www.jacoco.org/jacoco">JaCoCo</a> 0.8.2.201808211720</span>Generated by the Android Gradle plugin 3.5.4</div></body></html>
