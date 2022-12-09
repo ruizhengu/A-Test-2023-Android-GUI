@@ -9,16 +9,16 @@ import pandas as pd
 
 class Mutation:
     def __init__(self):
-        self.app_path = "../../../Experiment/ShiftCal"
+        self.app_path = "../../../Experiment/DroidShows"
         self.app_src_path = path.join(self.app_path, "app", "src")
         self.app_src_main_path = path.join(self.app_path, "app", "src", "main")
-        self.mutant_path = "Mutant_ShiftCal"
+        self.mutant_path = "Mutant_DroidShows"
         self.mutants = [m for m in listdir(self.mutant_path) if "log" not in m]
         self.test_script = "sh runJacoco.sh"
-        self.mutant_log = "Mutant_ShiftCal/app-debug.apk-mutants.log"
+        self.mutant_log = "Mutant_DroidShows/app-debug.apk-mutants.log"
         self.mutants_dict = self.get_mutant_info()
         self.result_file = "mutation.xlsx"
-        self.result_sheet_name = "ShiftCal"
+        self.result_sheet_name = "DroidShows"
         self.result_header = [
             "Mutant",
             "Operator",

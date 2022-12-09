@@ -133,3 +133,4 @@ dmypy.json
 .pyre/
 
 !mutant/Mutant_ShiftCal/app-debug.apk-mutants.log
+!mutant/Mutant_DroidShows/app-debug.apk-mutants.log

@@ -1,3 +1,4 @@
 #!/bin/bash
-cd ../../../Experiment/ShiftCal/
+cd ../../../Experiment/DroidShows/
 ./gradlew combinedTestReportDebug
+adb uninstall nl.asymmetrics.droidshows

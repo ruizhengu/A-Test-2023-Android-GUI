@@ -1,0 +1,136 @@
+<?xml version="1.0" encoding="utf-8"?>
+<ScrollView xmlns:android="http://schemas.android.com/apk/res/android"
+    android:layout_width="fill_parent"
+    android:layout_height="fill_parent">
+
+    <LinearLayout
+        android:layout_width="fill_parent"
+        android:layout_height="wrap_content"
+        android:layout_marginTop="6dp"
+        android:orientation="vertical">
+
+        <LinearLayout
+            android:layout_width="fill_parent"
+            android:layout_height="wrap_content"
+            android:orientation="horizontal">
+
+            <Button
+                android:id="@+id/backup"
+                android:layout_width="0dp"
+                android:layout_height="wrap_content"
+                android:layout_weight="1"
+                android:onClick="dialogOptions"
+                android:text="@string/dialog_backup" />
+
+            <Button
+                android:id="@+id/restore"
+                android:layout_width="0dp"
+                android:layout_height="wrap_content"
+                android:layout_weight="1"
+                android:onClick="dialogOptions"
+                android:text="@string/dialog_restore" />
+        </LinearLayout>
+
+        <CheckBox
+            android:id="@+id/auto_backup"
+            android:layout_width="fill_parent"
+            android:layout_height="wrap_content"
+            android:focusable="false"
+            android:focusableInTouchMode="false"
+            android:onClick="dialogOptions"
+            android:text="@string/dialog_auto_backup" />
+
+        <CheckBox
+            android:id="@+id/backup_versioning"
+            android:layout_width="fill_parent"
+            android:layout_height="wrap_content"
+            android:focusable="false"
+            android:focusableInTouchMode="false"
+            android:onClick="dialogOptions"
+            android:text="@string/dialog_backup_versioning" />
+
+        <CheckBox
+            android:id="@+id/latest_season"
+            android:layout_width="fill_parent"
+            android:layout_height="wrap_content"
+            android:focusable="false"
+            android:focusableInTouchMode="false"
+            android:onClick="dialogOptions"
+            android:text="@string/dialog_latest_season" />
+
+        <CheckBox
+            android:id="@+id/show_next_airing"
+            android:layout_width="fill_parent"
+            android:layout_height="wrap_content"
+            android:focusable="false"
+            android:focusableInTouchMode="false"
+            android:onClick="dialogOptions"
+            android:text="@string/dialog_show_next_airing" />
+
+        <CheckBox
+            android:id="@+id/mark_from_last_watched"
+            android:layout_width="fill_parent"
+            android:layout_height="wrap_content"
+            android:focusable="false"
+            android:focusableInTouchMode="false"
+            android:onClick="dialogOptions"
+            android:text="@string/dialog_mark_from_last_watched" />
+
+        <CheckBox
+            android:id="@+id/include_specials"
+            android:layout_width="fill_parent"
+            android:layout_height="wrap_content"
+            android:focusable="false"
+            android:focusableInTouchMode="false"
+            android:onClick="dialogOptions"
+            android:text="@string/dialog_include_specials" />
+
+        <CheckBox
+            android:id="@+id/full_line_check"
+            android:layout_width="fill_parent"
+            android:layout_height="wrap_content"
+            android:focusable="false"
+            android:focusableInTouchMode="false"
+            android:onClick="dialogOptions"
+            android:text="@string/dialog_full_line_check" />
+
+        <CheckBox
+            android:id="@+id/switch_swipe_direction"
+            android:layout_width="fill_parent"
+            android:layout_height="wrap_content"
+            android:focusable="false"
+            android:focusableInTouchMode="false"
+            android:onClick="dialogOptions"
+            android:text="@string/dialog_switch_swipe_direction" />
+
+        <CheckBox
+            android:id="@+id/use_mirror"
+            android:layout_width="fill_parent"
+            android:layout_height="wrap_content"
+            android:focusable="false"
+            android:focusableInTouchMode="false"
+            android:onClick="dialogOptions"
+            android:text="@string/dialog_use_mirror" />
+
+        <Button
+            android:id="@+id/change_language"
+            android:layout_width="fill_parent"
+            android:layout_height="wrap_content"
+            android:onClick="dialogOptions" />
+
+        <TextView
+            android:layout_width="fill_parent"
+            android:layout_height="wrap_content"
+            android:lineSpacingExtra="0.5dp"
+            android:padding="6dp"
+            android:text="@string/dialog_help" />
+
+        <TextView
+            android:id="@+id/copyright"
+            android:layout_width="fill_parent"
+            android:layout_height="wrap_content"
+            android:autoLink="web"
+            android:lineSpacingExtra="1dp"
+            android:padding="6dp" />
+    </LinearLayout>
+</ScrollView>
