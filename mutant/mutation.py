@@ -53,10 +53,10 @@ class Mutation:
             process = subprocess.Popen(self.test_script, shell=True, stdout=subprocess.PIPE, stderr=subprocess.PIPE)
             output, err = process.communicate()
             if "BUILD SUCCESSFUL" in output.decode("utf-8"):
-                result_tmp.append("killed")
+                result_tmp.append("not killed")
                 result_tmp.append("None")
             else:
-                result_tmp.append("not killed")
+                result_tmp.append("killed")
                 result_tmp.append(err.decode('utf-8'))
             result.append(result_tmp)
             self.write_result(result)
