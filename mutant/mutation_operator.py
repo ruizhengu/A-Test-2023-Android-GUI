@@ -16,13 +16,14 @@ class Operator:
         for xml in self.layouts:
             tree = Et.parse(path.join(self.resource, xml))
             root = tree.getroot()
-            layout = Layout(xml)
+            layout = Layout(xml, tree)
             layout.tree_walk(root)
 
 
 class Layout:
-    def __init__(self, xml):
+    def __init__(self, xml, tree):
         self.xml = xml
+        self.tree = tree
         self.origin_main = "../../../Experiment/ShiftCal/app/src/main"
         self.mutants_path = "Mutant_ShiftCal"
 
@@ -31,6 +32,7 @@ class Layout:
             root.set('{http://schemas.android.com/apk/res/android}visibility', 'gone')
             print(os.path.basename(self.xml))
             self.generate_mutant()
+            root.attrib.pop('{http://schemas.android.com/apk/res/android}visibility')
         for child in root:
             self.tree_walk(child)
 
@@ -38,6 +40,7 @@ class Layout:
         mutant_directory = self.get_mutant_directory()
         os.mkdir(mutant_directory)
         copy_tree(self.origin_main, mutant_directory)
+        self.tree.write(os.path.join(mutant_directory, "res", "layout", self.xml))
 
     def get_mutant_directory(self):
         mutants = [m for m in os.listdir(self.mutants_path) if "mutant" in m]
