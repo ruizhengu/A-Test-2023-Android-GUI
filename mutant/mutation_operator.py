@@ -2,7 +2,9 @@ import os
 from os import listdir, path
 import xml.etree.ElementTree as Et
 from distutils.dir_util import copy_tree
-from loguru import logger
+import pandas as pd
+
+result = []
 
 
 class Operator:
@@ -12,7 +14,6 @@ class Operator:
         Et.register_namespace('android', 'http://schemas.android.com/apk/res/android')
         Et.register_namespace('app', 'http://schemas.android.com/apk/res-auto')
         Et.register_namespace('tools', 'http://schemas.android.com/tools')
-        logger.add(os.path.join("Mutant_ShiftCal", "mutants.log"))
 
     def parse_components(self):
         for xml in self.layouts:
@@ -28,6 +29,15 @@ class Layout:
         self.tree = tree
         self.origin_main = "../../../Experiment/ShiftCal/app/src/main"
         self.mutants_path = "Mutant_ShiftCal"
+        self.result_file = "mutation.xlsx"
+        self.result_sheet_name = "ShiftCal - BWD - TWD"
+        self.result_header = [
+            "Mutant",
+            "Resource",
+            "Tag",
+            "Operator",
+            "Valid"
+        ]
 
     def tree_walk(self, root):
         if "Button" in root.tag or "EditText" in root.tag:
@@ -50,12 +60,16 @@ class Layout:
         return os.path.join(self.mutants_path, f"mutant_{len(mutants) + 1}")
 
     def mutation_logging(self, file, xml, root):
+        result_tmp = [os.path.basename(file), xml]
         if "Button" in root.tag:
-            op = "Button widget deletion"
+            result_tmp.append("Button widget deletion")
         else:
-            op = "EditText widget deletion"
-        logger.info(
-            f"Mutant: {file}, Operator: {op}, Resource: {xml}, View Tag: {root.tag}")
+            result_tmp.append("EditText widget deletion")
+        result_tmp.append(root.tag)
+        result_tmp.append("TBD")
+        result.append(result_tmp)
+        df = pd.DataFrame(result, columns=self.result_header)
+        df.to_excel(self.result_file, sheet_name=self.result_sheet_name, index=False)
 
 
 if __name__ == '__main__':

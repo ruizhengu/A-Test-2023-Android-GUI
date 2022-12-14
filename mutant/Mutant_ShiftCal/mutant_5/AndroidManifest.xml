@@ -1,0 +1,108 @@
+<?xml version="1.0" encoding="utf-8"?>
+<manifest xmlns:android="http://schemas.android.com/apk/res/android"
+    xmlns:tools="http://schemas.android.com/tools"
+    package="de.nulide.shiftcal">
+
+    <uses-permission
+        android:name="android.permission.AUTHENTICATE_ACCOUNTS"
+        android:maxSdkVersion="22" />
+    <uses-permission android:name="android.permission.RECEIVE_BOOT_COMPLETED" />
+    <uses-permission android:name="android.permission.ACCESS_NOTIFICATION_POLICY" />
+    <uses-permission android:name="android.permission.SCHEDULE_EXACT_ALARM" />
+    <uses-permission android:name="android.permission.SYSTEM_ALERT_WINDOW" />
+    <uses-permission android:name="android.permission.WRITE_CALENDAR" />
+    <uses-permission android:name="android.permission.READ_CALENDAR" />
+
+    <application
+        android:allowBackup="true"
+        android:icon="@mipmap/ic_launcher"
+        android:label="@string/app_name"
+        android:supportsRtl="true"
+        android:theme="@style/AppTheme">
+        <activity
+            android:name=".settings.CalendarSyncActivity"
+            android:label="@string/title_activity_calendar_sync"
+            android:theme="@style/AppTheme.NoActionBar" />
+        <activity
+            android:name=".settings.AboutActivity"
+            android:label="@string/title_activity_about"
+            android:theme="@style/AppTheme.NoActionBar" />
+        <activity
+            android:name=".settings.DNDActivity"
+            android:label="@string/title_activity_dnd"
+            android:theme="@style/AppTheme.NoActionBar" />
+        <activity
+            android:name=".settings.ThemeActivity"
+            android:label="@string/title_activity_theme"
+            android:theme="@style/AppTheme.NoActionBar" />
+        <activity
+            android:name=".ExecutedAlarmActivity"
+            android:screenOrientation="portrait"
+            android:theme="@style/AppTheme.NoActionBar"
+            tools:ignore="LockedOrientationActivity" />
+        <activity
+            android:name=".settings.AlarmActivity"
+            android:label="@string/title_activity_shiftalarm"
+            android:theme="@style/AppTheme.NoActionBar" />
+        <activity
+            android:name=".settings.SettingsActivity"
+            android:label="@string/title_activity_settings"
+            android:theme="@style/AppTheme.NoActionBar" />
+        <activity
+            android:name=".ShiftCreatorActivity"
+            android:label="@string/title_activity_shift_creator"
+            android:theme="@style/AppTheme.NoActionBar" />
+        <activity
+            android:name=".ShiftsActivity"
+            android:label="@string/title_activity_shifts"
+            android:theme="@style/AppTheme.NoActionBar" />
+        <activity
+            android:name=".EmployerCreatorActivity"
+            android:label="@string/title_activity_employer_creator"
+            android:theme="@style/AppTheme.NoActionBar" />
+        <activity
+            android:name=".EmployersActivity"
+            android:label="@string/title_activity_employers"
+            android:theme="@style/AppTheme.NoActionBar" />
+        <activity
+            android:name=".CalendarActivity"
+            android:configChanges="uiMode"
+            android:exported="true"
+            android:label="@string/title_activity_calendar"
+            android:theme="@style/AppTheme.NoActionBar">
+            <intent-filter>
+                <action android:name="android.intent.action.MAIN" />
+
+                <category android:name="android.intent.category.LAUNCHER" />
+            </intent-filter>
+        </activity>
+
+        <receiver
+            android:name=".receiver.AlarmReceiver"
+            android:enabled="true"
+            android:exported="true" />
+        <receiver
+            android:name=".receiver.DNDReceiver"
+            android:enabled="true"
+            android:exported="true" />
+        <receiver
+            android:name=".receiver.BootReceiver"
+            android:directBootAware="true"
+            android:enabled="true"
+            android:exported="true">
+            <intent-filter>
+                <action android:name="android.intent.action.BOOT_COMPLETED" />
+                <action android:name="android.intent.action.LOCKED_BOOT_COMPLETED" />
+            </intent-filter>
+        </receiver>
+        <receiver
+            android:name=".receiver.AppUpdateReceiver"
+            android:enabled="true"
+            android:exported="true">
+            <intent-filter>
+                <action android:name="android.intent.action.MY_PACKAGE_REPLACED" />
+            </intent-filter>
+        </receiver>
+    </application>
+
+</manifest>
