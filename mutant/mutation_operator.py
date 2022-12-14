@@ -2,6 +2,7 @@ import os
 from os import listdir, path
 import xml.etree.ElementTree as Et
 from distutils.dir_util import copy_tree
+from loguru import logger
 
 
 class Operator:
@@ -11,6 +12,7 @@ class Operator:
         Et.register_namespace('android', 'http://schemas.android.com/apk/res/android')
         Et.register_namespace('app', 'http://schemas.android.com/apk/res-auto')
         Et.register_namespace('tools', 'http://schemas.android.com/tools')
+        logger.add(os.path.join("Mutant_ShiftCal", "mutants.log"))
 
     def parse_components(self):
         for xml in self.layouts:
@@ -31,20 +33,29 @@ class Layout:
         if "Button" in root.tag or "EditText" in root.tag:
             root.set('{http://schemas.android.com/apk/res/android}visibility', 'gone')
             print(os.path.basename(self.xml))
-            self.generate_mutant()
+            self.generate_mutant(root)
             root.attrib.pop('{http://schemas.android.com/apk/res/android}visibility')
         for child in root:
             self.tree_walk(child)
 
-    def generate_mutant(self):
+    def generate_mutant(self, root):
         mutant_directory = self.get_mutant_directory()
+        self.mutation_logging(mutant_directory, self.xml, root)
         os.mkdir(mutant_directory)
         copy_tree(self.origin_main, mutant_directory)
         self.tree.write(os.path.join(mutant_directory, "res", "layout", self.xml))
 
     def get_mutant_directory(self):
-        mutants = [m for m in os.listdir(self.mutants_path) if "mutant" in m]
+        mutants = [m for m in os.listdir(self.mutants_path) if "log" not in m]
         return os.path.join(self.mutants_path, f"mutant_{len(mutants) + 1}")
+
+    def mutation_logging(self, file, xml, root):
+        if "Button" in root.tag:
+            op = "Button widget deletion"
+        else:
+            op = "EditText widget deletion"
+        logger.info(
+            f"Mutant: {file}, Operator: {op}, Resource: {xml}, View Tag: {root.tag}")
 
 
 if __name__ == '__main__':
