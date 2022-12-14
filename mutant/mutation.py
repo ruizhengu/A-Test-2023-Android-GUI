@@ -65,13 +65,6 @@ class Mutation:
         df = pd.DataFrame(result, columns=self.result_header)
         df.to_excel(self.result_file, sheet_name=self.result_sheet_name, index=False)
 
-    # @staticmethod
-    # def get_error_type(err):
-    #     if "FAILURE: Build failed with an exception." in err:
-    #         return "Build failed with an exception"
-    #     else:
-    #         return err
-
 
 if __name__ == '__main__':
     mutation = Mutation()
