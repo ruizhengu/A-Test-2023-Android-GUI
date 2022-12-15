@@ -9,7 +9,7 @@ result = []
 
 class Operator:
     def __init__(self):
-        self.resource = '../../../Experiment/ShiftCal/app/src/main/res/layout/'
+        self.resource = '../../../Experiment/DroidShows/app/src/main/res/layout/'
         self.layouts = [lo for lo in listdir(self.resource)]
         Et.register_namespace('android', 'http://schemas.android.com/apk/res/android')
         Et.register_namespace('app', 'http://schemas.android.com/apk/res-auto')
@@ -27,10 +27,10 @@ class Layout:
     def __init__(self, xml, tree):
         self.xml = xml
         self.tree = tree
-        self.origin_main = "../../../Experiment/ShiftCal/app/src/main"
-        self.mutants_path = "Mutant_ShiftCal"
+        self.origin_main = "../../../Experiment/DroidShows/app/src/main"
+        self.mutants_path = "Mutant_DroidShows"
         self.result_file = "mutation.xlsx"
-        self.result_sheet_name = "ShiftCal - BWD - TWD"
+        self.result_sheet_name = "DroidShows - BWD - TWD"
         self.result_header = [
             "Mutant",
             "Resource",

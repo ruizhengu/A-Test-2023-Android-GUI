@@ -9,17 +9,17 @@ import pandas as pd
 
 class Mutation:
     def __init__(self):
-        self.app_path = "../../../Experiment/ShiftCal"
+        self.app_path = "../../../Experiment/DroidShows"
         self.app_src_path = path.join(self.app_path, "app", "src")
         self.app_src_main_path = path.join(self.app_path, "app", "src", "main")
-        self.mutant_path = "Mutant_ShiftCal"
+        self.mutant_path = "Mutant_DroidShows"
         self.mutants = [m for m in listdir(self.mutant_path) if "log" not in m]
         self.test_script = "sh runJacoco.sh"
         self.mutant_log = "Mutant_DroidShows/app-debug.apk-mutants.log"
         if os.path.exists(self.mutant_log):
             self.mutants_dict = self.get_mutant_info()
         self.result_file = "mutation.xlsx"
-        self.result_sheet_name = "DroidShows"
+        self.result_sheet_name = "DroidShows-Result-B&T"
         self.result_header = [
             "Mutant",
             "Operator",
@@ -75,7 +75,6 @@ class Mutation:
             if "BUILD SUCCESSFUL" in output.decode("utf-8"):
                 result_tmp.append("not killed")
                 result_tmp.append(err.decode('utf-8'))
-
             else:
                 result_tmp.append("killed")
                 result_tmp.append("None")
@@ -84,7 +83,7 @@ class Mutation:
 
     def get_valid_mutants(self):
         mutants = []
-        mutants_sheet = pd.read_excel(self.result_file, sheet_name="ShiftCal - BWD - TWD")
+        mutants_sheet = pd.read_excel(self.result_file, sheet_name="DroidShows - BWD - TWD")
         li = mutants_sheet.values.tolist()
         for mutant in li:
             if mutant[-1] == "T":
