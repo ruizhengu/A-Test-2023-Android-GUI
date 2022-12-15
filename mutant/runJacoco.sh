@@ -1,4 +1,5 @@
 #!/bin/bash
-cd ../../../Experiment/DroidShows/
+adb root
+cd ../../../Experiment/ShiftCal/
 ./gradlew combinedTestReportDebug
-adb uninstall nl.asymmetrics.droidshows
+adb uninstall de.nulide.shiftcal
