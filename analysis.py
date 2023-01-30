@@ -26,7 +26,11 @@ def framework_result_analysis():
 
 
 def app_suite_analysis():
-    suite = "/home/ruizhen/AndroidStudioProjects/DroidShows/app/src/androidTest/java/nl/asymmetrics/droidshows/TestSuite.java"
+    suite = "/home/ruizhen/Projects/PycharmProjects/autcom/baseline/ShiftCal/Baseline.java"
+    # with open(suite, "r") as f:
+    #     lines = f.readlines()
+    # for line in lines:
+    #     if ""
     file = open(suite, "r")
     lines = file.readlines()
     pattern = ".*\\/\\/ [0-9]{1,2}. (.*)."
@@ -35,11 +39,35 @@ def app_suite_analysis():
     for line in lines:
         if "//" in line:
             match = re.match(pattern, line).group(1)
+            print(match)
             unique_lines.add(match)
             total_lines += 1
     print(total_lines)
     print(len(unique_lines))
 
 
+def loc_cal():
+    suite = "/home/ruizhen/Projects/PycharmProjects/autcom/baseline/DroidShows/Baseline.java"
+    file = open(suite, "r")
+    lines = file.readlines()
+    total_lines = 0
+    unique_lines = set()
+    for line in lines:
+        if "device." in line or "onView" in line or "pressBack" in line:
+            if "assert" not in line and "import" not in line:
+                # print(line.strip())
+                unique_lines.add(line.strip())
+                total_lines += 1
+    print(total_lines)
+    print(len(unique_lines))
+    uiautomator_exclusive = 0
+    for unique in unique_lines:
+        if "device" in unique:
+            uiautomator_exclusive += 1
+            print(unique)
+
+    print(uiautomator_exclusive)
+
+
 if __name__ == '__main__':
-    app_suite_analysis()
+    loc_cal()
