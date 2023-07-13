@@ -1,20 +1,20 @@
 import json
 import re
+import pandas as pd
 
 
 def framework_result_analysis():
-    f = open("api_result.json")
+    f = open("data_collection/api_result.json")
     data = json.load(f)
     repo_no_manual = 0
-    repo_need_manual = 0
     repo_has_espresso = 0
     repo_has_uiautomator = 0
     repo_has_both = 0
+    no_manual_repos = []
     for repo in data:
-        if repo["require manual check"]:
-            repo_need_manual += 1
         if not repo["require manual check"]:
             repo_no_manual += 1
+            no_manual_repos.append(repo)
         if repo["espresso used"]:
             repo_has_espresso += 1
         if repo["uiautomator used"]:
@@ -22,19 +22,29 @@ def framework_result_analysis():
         if repo["uiautomator used"] and repo["espresso used"]:
             # print(repo["repository"])
             repo_has_both += 1
-    print("repo need manual", repo_need_manual)
     print("repo no manual", repo_no_manual)
     print("repo has espresso", repo_has_espresso)
     print("repo has uiautomator", repo_has_uiautomator)
     print("repo has both", repo_has_both)
+    get_manual_check_repos(get_repo_names(no_manual_repos))
+
+
+def get_repo_names(repo_details):
+    repo_names = []
+    for item in repo_details:
+        repo_names.append(item["repository"])
+    return repo_names
+
+
+def get_manual_check_repos(manual_repos):
+    data = pd.read_excel("data_collection/gui_repos.xlsx", "exist")
+    for index, repo in data.iterrows():
+        if repo["repository"] not in manual_repos and repo["new"] not in manual_repos and repo["count"] == 1:
+            print(repo["repository"])
 
 
 def app_suite_analysis():
     suite = "/home/ruizhen/Projects/PycharmProjects/autcom/baseline/ShiftCal/Baseline.java"
-    # with open(suite, "r") as f:
-    #     lines = f.readlines()
-    # for line in lines:
-    #     if ""
     file = open(suite, "r")
     lines = file.readlines()
     pattern = ".*\\/\\/ [0-9]{1,2}. (.*)."
@@ -59,7 +69,6 @@ def loc_cal():
     for line in lines:
         if "device." in line or "onView" in line or "pressBack" in line:
             if "assert" not in line and "import" not in line:
-                # print(line.strip())
                 unique_lines.add(line.strip())
                 total_lines += 1
     print(total_lines)
