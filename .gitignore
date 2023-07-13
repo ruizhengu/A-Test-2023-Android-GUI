@@ -1,5 +1,3 @@
-git_token.py
-repositories.csv
 .idea/*
 
 # Byte-compiled / optimized / DLL files
@@ -132,5 +130,5 @@ dmypy.json
 # Pyre type checker
 .pyre/
 
-!mutant/Mutant_ShiftCal/app-debug.apk-mutants.log
-!mutant/Mutant_DroidShows/app-debug.apk-mutants.log
+!data_analysis/mutant/Mutant_ShiftCal/app-debug.apk-mutants.log
+!data_analysis/mutant/Mutant_DroidShows/app-debug.apk-mutants.log

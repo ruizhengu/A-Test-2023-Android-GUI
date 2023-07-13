@@ -4,7 +4,7 @@ import github
 
 from git_token import GITHUB_TOKEN
 from github import Github
-from utils import *
+from data_collection.utils import *
 
 
 class Search:

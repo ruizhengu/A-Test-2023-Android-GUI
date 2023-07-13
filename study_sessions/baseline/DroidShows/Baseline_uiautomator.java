@@ -142,32 +142,32 @@ public class Baseline_uiautomator {
         device.wait(Until.findObject(By.text("Season 5")), 5000);
         device.findObject(By.text("Season 5")).click();
         // 8. Click "Ep. 6. Cigarettes, Whiskey, a Meadow and Fog".
-        device.wait(Until.findObject(By.textContains("Ep. 6.")), 5000);
-        device.findObject(By.textContains("Ep. 6.")).click();
+        device.wait(Until.findObject(By.textContains("Ep. 8.")), 5000);
+        device.findObject(By.textContains("Ep. 8.")).click();
         // 9. Click the aired date "Dec 11, 2022".
-        device.wait(Until.findObject(By.text("Dec 11, 2022")), 5000);
-        device.findObject(By.text("Dec 11, 2022")).click();
-        // 17. Launch the "DroidShows" app.
+        device.wait(Until.findObject(By.text("Jan 1, 2023")), 5000);
+        device.findObject(By.text("Jan 1, 2023")).click();
+        // 10. Launch the "DroidShows" app.
         device.wait(Until.findObject(By.res("com.google.android.calendar:id/input")), 5000);
         device.pressRecentApps();
         device.wait(Until.findObject(By.res("com.android.systemui:id/task_view_bar")), 5000);
         device.findObject(By.text("DroidShows")).click();
-        // 18. Use "press back" to return to the Episodes page of Season 5.
+        // 11. Use "press back" to return to the Episodes page of Season 5.
         device.wait(Until.findObject(By.text("Dec 11, 2022")), 5000);
         device.pressBack();
-        // 19. Use "press back" to return to the Seasons page of the show.
+        // 12. Use "press back" to return to the Seasons page of the show.
         device.wait(Until.findObject(By.textContains("Ep. 6.")), 5000);
         device.pressBack();
-        // 20. Use "press back" to return to the home page.
+        // 13. Use "press back" to return to the home page.
         device.wait(Until.findObject(By.text("Season 1")), 5000);
         device.pressBack();
-        // 21. Click the "⋮" button of the added show.
+        // 14. Click the "⋮" button of the added show.
         device.wait(Until.findObject(By.res("nl.asymmetrics.droidshows:id/seriecontext")), 5000);
         device.findObject(By.res("nl.asymmetrics.droidshows:id/seriecontext")).click();
-        // 22. Click "Delete" in the popup menu.
+        // 15. Click "Delete" in the popup menu.
         device.wait(Until.findObject(By.text("Delete")), 5000);
         device.findObject(By.text("Delete")).click();
-        // 23. Click the "OK" button in the dialog.
+        // 16. Click the "OK" button in the dialog.
         device.wait(Until.findObject(By.text("OK")), 5000);
         device.findObject(By.text("OK")).click();
     }

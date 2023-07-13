@@ -8,5 +8,12 @@ def unique_coding(email):
 
 
 if __name__ == '__main__':
-    address = "rgu10@sheffield.ac.uk"
-    unique_coding(address)
+    mails = [
+        "ajain9@sheffield.ac.uk"
+    ]
+
+    # address = "rgu10@sheffield.ac.uk"
+    # unique_coding(address)
+
+    for m in mails:
+        unique_coding(m)

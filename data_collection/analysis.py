@@ -6,10 +6,13 @@ def framework_result_analysis():
     f = open("api_result.json")
     data = json.load(f)
     repo_no_manual = 0
+    repo_need_manual = 0
     repo_has_espresso = 0
     repo_has_uiautomator = 0
     repo_has_both = 0
     for repo in data:
+        if repo["require manual check"]:
+            repo_need_manual += 1
         if not repo["require manual check"]:
             repo_no_manual += 1
         if repo["espresso used"]:
@@ -17,8 +20,9 @@ def framework_result_analysis():
         if repo["uiautomator used"]:
             repo_has_uiautomator += 1
         if repo["uiautomator used"] and repo["espresso used"]:
-            print(repo["repository"])
+            # print(repo["repository"])
             repo_has_both += 1
+    print("repo need manual", repo_need_manual)
     print("repo no manual", repo_no_manual)
     print("repo has espresso", repo_has_espresso)
     print("repo has uiautomator", repo_has_uiautomator)
@@ -70,4 +74,4 @@ def loc_cal():
 
 
 if __name__ == '__main__':
-    loc_cal()
+    framework_result_analysis()

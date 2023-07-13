@@ -2,7 +2,7 @@ import json
 import pandas as pd
 import math
 
-data_path = "gui_repos.xlsx"
+data_path = "../gui_repos.xlsx"
 sheet_repositories = "repositories"
 sheet_exist = "exist"
 sheet_espresso = "espresso"
