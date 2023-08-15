@@ -64,13 +64,13 @@ public class Baseline_uiautomator {
         // 5. Use "press back" to return to the home page.
         device.wait(Until.findObject(By.text("Yellowstone (2018) (en)")), 5000);
         device.pressBack();
-        // 7. Click the "⋮" button of the added show.
+        // 6. Click the "⋮" button of the added show.
         device.wait(Until.findObject(By.res("nl.asymmetrics.droidshows:id/seriecontext")), 5000);
         device.findObject(By.res("nl.asymmetrics.droidshows:id/seriecontext")).click();
-        // 8. Click "Delete" in the popup menu.
+        // 7. Click "Delete" in the popup menu.
         device.wait(Until.findObject(By.text("Delete")), 5000);
         device.findObject(By.text("Delete")).click();
-        // 9. Click the "OK" button in the dialog.
+        // 8. Click the "OK" button in the dialog.
         device.wait(Until.findObject(By.text("OK")), 5000);
         device.findObject(By.text("OK")).click();
     }
@@ -101,19 +101,19 @@ public class Baseline_uiautomator {
         // 8. Click the checkbox of "Ep. 1. Daybreak".
         device.wait(Until.findObject(By.res("nl.asymmetrics.droidshows:id/seen")), 5000);
         device.findObject(By.res("nl.asymmetrics.droidshows:id/seen")).click();
-        // 10. Use "press back" to return to the Seasons page of the show.
+        // 9. Use "press back" to return to the Seasons page of the show.
         device.wait(Until.findObject(By.checked(true)), 5000);
         device.pressBack();
-        // 11. Use "press back" to return to the home page.
+        // 10. Use "press back" to return to the home page.
         device.wait(Until.findObject(By.text("Season 1")), 5000);
         device.pressBack();
-        // 12. Click the "⋮" button of the added show.
+        // 11. Click the "⋮" button of the added show.
         device.wait(Until.findObject(By.res("nl.asymmetrics.droidshows:id/seriecontext")), 5000);
         device.findObject(By.res("nl.asymmetrics.droidshows:id/seriecontext")).click();
-        // 13. Click "Delete" in the popup menu.
+        // 12. Click "Delete" in the popup menu.
         device.wait(Until.findObject(By.text("Delete")), 5000);
         device.findObject(By.text("Delete")).click();
-        // 14. Click the "OK" button in the dialog.
+        // 13. Click the "OK" button in the dialog.
         device.wait(Until.findObject(By.text("OK")), 5000);
         device.findObject(By.text("OK")).click();
     }

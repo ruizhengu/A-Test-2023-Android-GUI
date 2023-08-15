@@ -72,11 +72,11 @@ public class Baseline_combination {
         onView(withText("ADD SHOW")).perform(click());
         // 5. Use "press back" to return to the home page.
         pressBack();
-        // 7. Click the "⋮" button of the added show.
+        // 6. Click the "⋮" button of the added show.
         onView(withId(R.id.seriecontext)).perform(click());
-        // 8. Click "Delete" in the popup menu.
+        // 7. Click "Delete" in the popup menu.
         onView(withText("Delete")).perform(click());
-        // 9. Click the "OK" button in the dialog.
+        // 8. Click the "OK" button in the dialog.
         onView(withText("OK")).perform(click());
     }
 
@@ -89,8 +89,8 @@ public class Baseline_combination {
         device.pressEnter();
         // 3. Click "Yellowstone (2018) (en)".
         device.wait(Until.findObject(By.res("nl.asymmetrics.droidshows:id/seriename")), 5000);
-        // 4. Click the "ADD SHOW" button in the dialog.
         onView(withText("Yellowstone (2018) (en)")).perform(click());
+        // 4. Click the "ADD SHOW" button in the dialog.
         onView(withText("ADD SHOW")).perform(click());
         // 5. Use "press back" to return to the home page.
         pressBack();
@@ -100,15 +100,15 @@ public class Baseline_combination {
         onView(withText("Season 1")).perform(click());
         // 8. Click the checkbox of "Ep. 1. Daybreak".
         onView(allOf(withId(R.id.seen), hasSibling(withChild(withText("Ep. 1. Daybreak"))))).perform(click());
-        // 10. Use "press back" to return to the Seasons page of the show.
+        // 9. Use "press back" to return to the Seasons page of the show.
         pressBack();
-        // 11. Use "press back" to return to the home page.
+        // 10. Use "press back" to return to the home page.
         pressBack();
-        // 12. Click the "⋮" button of the added show.
+        // 11. Click the "⋮" button of the added show.
         onView(withId(R.id.seriecontext)).perform(click());
-        // 13. Click "Delete" in the popup menu.
+        // 12. Click "Delete" in the popup menu.
         onView(withText("Delete")).perform(click());
-        // 14. Click the "OK" button in the dialog.
+        // 13. Click the "OK" button in the dialog.
         onView(withText("OK")).perform(click());
     }
 
@@ -121,8 +121,8 @@ public class Baseline_combination {
         device.pressEnter();
         // 3. Click "Yellowstone (2018) (en)".
         device.wait(Until.findObject(By.res("nl.asymmetrics.droidshows:id/seriename")), 5000);
-        // 4. Click the "ADD SHOW" button in the dialog.
         onView(withText("Yellowstone (2018) (en)")).perform(click());
+        // 4. Click the "ADD SHOW" button in the dialog.
         onView(withText("ADD SHOW")).perform(click());
         // 5. Use "press back" to return to the home page.
         pressBack();
@@ -134,21 +134,21 @@ public class Baseline_combination {
         onView(withText(containsString("Ep. 6."))).perform(click());
         // 9. Click the aired date "Dec 11, 2022".
         onView(withId(R.id.firstAired)).perform(click());
-        // 17. Launch the "DroidShows" app.
+        // 10. Launch the "DroidShows" app.
         device.pressRecentApps();
         device.wait(Until.findObject(By.res("com.android.systemui:id/task_view_bar")), 5000);
         device.findObject(By.text("DroidShows")).click();
-        // 18. Use "press back" to return to the Episodes page of Season 5.
+        // 11. Use "press back" to return to the Episodes page of Season 5.
         pressBack();
-        // 19. Use "press back" to return to the Seasons page of the show.
+        // 12. Use "press back" to return to the Seasons page of the show.
         pressBack();
-        // 20. Use "press back" to return to the home page.
+        // 13. Use "press back" to return to the home page.
         pressBack();
-        // 21. Click the "⋮" button of the added show.
+        // 14. Click the "⋮" button of the added show.
         onView(withId(R.id.seriecontext)).perform(click());
-        // 22. Click "Delete" in the popup menu.
+        // 15. Click "Delete" in the popup menu.
         onView(withText("Delete")).perform(click());
-        // 23. Click the "OK" button in the dialog.
+        // 16. Click the "OK" button in the dialog.
         onView(withText("OK")).perform(click());
     }
 }
