@@ -6,7 +6,8 @@ from selenium import webdriver
 from selenium.webdriver.common.by import By
 from utils import *
 
-json_file = "api_result.json"
+# json_file = "api_result.json"
+appium_results = "api_result.json"
 
 
 class Crawler:
@@ -16,13 +17,22 @@ class Crawler:
         self.driver.get(f"https://github.com/{self.repo}")
         self.driver.set_page_load_timeout(10)
         self.require_manual_check = False
-        self.espresso_used = False
-        self.uiautomator_used = False
-        self.espresso_apis = []
-        self.uiautomator_apis = []
+        # self.espresso_used = False
+        # self.uiautomator_used = False
+        self.appium_used = False
+        # self.espresso_apis = []
+        # self.uiautomator_apis = []
+        self.appium_apis = []
+        self.app_name = self.repo.split("/")[-1]
 
     # get in the app folder
     def get_in_app(self):
+        time.sleep(2)
+        potential_entry = ["android", "Android", self.app_name, self.app_name.lower()]
+        for entry in potential_entry:
+            if self.ele_exist(entry):
+                self.ele_click(entry)
+                break
         time.sleep(2)
         self.ele_click("app")
 
@@ -33,6 +43,14 @@ class Crawler:
     # get in the folder began with androidTest
     def get_in_android_test(self):
         self.ele_contain_click("androidTest")
+
+    def ele_exist(self, title):
+        ele_files = self.driver.find_element(By.XPATH, "//*[contains(@class, 'Details-content')]")
+        files = ele_files.find_elements(By.XPATH, "//*[contains(@class, 'js-navigation-open')]")
+        for file in files:
+            if file.text == title:
+                return True
+        return False
 
     # click element by title
     def ele_click(self, title):
@@ -101,8 +119,9 @@ class Crawler:
 
     # check if the code actually implemented the tools' apis
     def get_code_with_keywords(self):
-        espresso_api = []
-        uiautomator_api = []
+        # espresso_api = []
+        # uiautomator_api = []
+        appium_api = []
         all_code = self.driver.find_elements(By.XPATH, "//*[contains(@class, 'blob-code-inner')]")
         for code in all_code:
             if "import" in code.text:
@@ -110,19 +129,27 @@ class Crawler:
                 api = imports.split(".")[-1]
                 if ";" in api:
                     api = api[:-1]
-                if "espresso" in code.text:
-                    espresso_api.append(api)
-                if "uiautomator" in code.text:
-                    uiautomator_api.append(api)
+                # if "espresso" in code.text:
+                #     espresso_api.append(api)
+                # if "uiautomator" in code.text:
+                #     uiautomator_api.append(api)
+                if "appium" in code.text:
+                    appium_api.append(api)
+
             else:
-                for api in espresso_api:
+                # for api in espresso_api:
+                #     if api in code.text:
+                #         self.espresso_used = True
+                #         self.espresso_apis.append(api)
+                # for api in uiautomator_api:
+                #     if api in code.text:
+                #         self.uiautomator_used = True
+                #         self.uiautomator_apis.append(api)
+                for api in appium_api:
                     if api in code.text:
-                        self.espresso_used = True
-                        self.espresso_apis.append(api)
-                for api in uiautomator_api:
-                    if api in code.text:
-                        self.uiautomator_used = True
-                        self.uiautomator_apis.append(api)
+                        self.appium_used = True
+                        self.appium_apis.append(api)
+
         time.sleep(2)
         self.back()
 
@@ -130,15 +157,23 @@ class Crawler:
         result = {
             "repository": self.repo,
             "require manual check": self.require_manual_check,
-            "espresso used": self.espresso_used,
-            "uiautomator used": self.uiautomator_used,
-            "espresso apis": Counter(self.espresso_apis),
-            "uiautomator apis": Counter(self.uiautomator_apis)
+            # "espresso used": self.espresso_used,
+            # "uiautomator used": self.uiautomator_used,
+            # "espresso apis": Counter(self.espresso_apis),
+            # "uiautomator apis": Counter(self.uiautomator_apis)
+            "appium used": self.appium_used,
+            "appium apis": Counter(self.appium_apis)
         }
-        with open(json_file, "r") as file:
+        # with open(json_file, "r") as file:
+        #     feeds = json.load(file)
+        #     feeds.append(result)
+        # with open(json_file, "w") as file:
+        #     json.dump(feeds, file)
+
+        with open(appium_results, "r") as file:
             feeds = json.load(file)
             feeds.append(result)
-        with open(json_file, "w") as file:
+        with open(appium_results, "w") as file:
             json.dump(feeds, file)
 
     def back(self):
@@ -151,13 +186,8 @@ class Crawler:
 
 if __name__ == '__main__':
     repos = get_target_repos()
-    # print(repos[446])
-    # print(len(repos))
 
-    # with open(json_file, "w") as f:
-    #     json.dump([], f)
-
-    for i in range(446, len(repos)):
+    for i in range(len(repos)):
         print(repos[i])
 
         crawler = Crawler(repos[i])
@@ -170,14 +200,3 @@ if __name__ == '__main__':
                 crawler.get_result()
         time.sleep(2)
         crawler.close()
-
-    # repo = "jbmlaird/DiscogsBrowser"
-    # crawler = Crawler(repo)
-    # crawler.get_in_app()
-    # crawler.get_in_src()
-    # crawler.get_in_android_test()
-    # if crawler.if_android_test():
-    #     crawler.open_test()
-    #     crawler.get_result()
-    # time.sleep(5)
-    # crawler.close()
