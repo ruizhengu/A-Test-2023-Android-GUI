@@ -3,10 +3,12 @@ import time
 import openpyxl
 import requests
 
+import config
+
 
 class Crawler:
     def __init__(self):
-        self.token = "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"
+        self.token = config.token
         self.file_name = "adoption.xlsx"
         self.file = openpyxl.load_workbook(self.file_name)
         self.sheet = self.file["repositories"]
@@ -25,14 +27,14 @@ class Crawler:
             response = requests.get(f"https://api.github.com/search/code?q={keyword}+repo:{owner}/{repo}",
                                     headers={"Authorization": f"token {self.token}"})
             data = response.json()
+            print(f"repo: {cell.value} progress: {row - 1} / {self.sheet.max_row - 1} ")
+            print(data)
             if data["total_count"] > 1:
                 self.sheet.cell(row=row, column=self.keyword_position[keyword]).value = 1
             else:
                 self.sheet.cell(row=row, column=self.keyword_position[keyword]).value = 0
-            print(f"repo: {cell.value} progress: {row - 1} / {self.sheet.max_row - 1} ")
-            print(data)
             self.file.save(self.file_name)
-            time.sleep(6)
+            time.sleep(10)
 
     def search_test(self, keyword, repo):
         owner = repo.split("/")[0]
