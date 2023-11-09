@@ -29,10 +29,11 @@ class Crawler:
             data = response.json()
             print(f"repo: {cell.value} progress: {row - 1} / {self.sheet.max_row - 1} ")
             print(data)
+            self.sheet.cell(row=row, column=self.keyword_position[keyword]).value = 0
             if data["total_count"] > 1:
-                self.sheet.cell(row=row, column=self.keyword_position[keyword]).value = 1
-            else:
-                self.sheet.cell(row=row, column=self.keyword_position[keyword]).value = 0
+                for item in data["items"]:
+                    if "androidTest" in item["path"]:
+                        self.sheet.cell(row=row, column=self.keyword_position[keyword]).value = 1
             self.file.save(self.file_name)
             time.sleep(10)
 
@@ -47,5 +48,12 @@ class Crawler:
 
 if __name__ == '__main__':
     crawler = Crawler()
+    crawler.search_code("Espresso")
+    crawler.search_code("UI Automator")
     crawler.search_code("Appium")
-    # crawler.search_test("Appium", "BarryBryant/rally-genius-android")
+    crawler.search_code("Espresso")
+    crawler.search_code("UI Automator")
+    crawler.search_code("Appium")
+    crawler.search_code("Espresso")
+    crawler.search_code("UI Automator")
+    crawler.search_code("Appium")
