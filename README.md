@@ -11,10 +11,10 @@ Template of the activity log: **Android Testing - Activity Log**
 
 Questions of the survey: **Android Testing - Survey**
 
-App and task for the training session: https://github.com/ruizhengu/ShiftCal
+App and task for the training session: **ShiftCal**
 
-App and task for the main study session: https://github.com/ruizhengu/DroidShows
+App and task for the main study session: **DroidShows**
 
-The model solution of the task for the training session: https://github.com/ruizhengu/ShiftCal-solution
+The model solution of the task for the training session: **ShiftCal-solution**
 
-The model solution of the task for the main study session: https://github.com/ruizhengu/autcom/tree/main/study_sessions/baseline/DroidShows
+The model solution of the task for the main study session: [DroidShows](/study_sessions/baseline/DroidShows)
